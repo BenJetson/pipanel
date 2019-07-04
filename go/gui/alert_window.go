@@ -23,12 +23,13 @@ type alertWindow struct {
 }
 
 func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
-	var w *alertWindow
+	var w alertWindow
 	var object glib.IObject
 	var err error
 	var ok bool
 
 	// Read in the view layout from the Glade file.
+	// TODO: Fix this so that it is directory agnostic.
 	if w.builder, err = gtk.BuilderNewFromFile("glade/alert_window.glade"); err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 		w.setTimeout(time.Millisecond * a.Timeout)
 	}
 
-	return w, nil
+	return &w, nil
 }
 
 func (w *alertWindow) ShowAll() { w.window.ShowAll() }
