@@ -19,9 +19,9 @@ func New(l *log.Logger) *GUI {
 	}
 }
 
-func (g *GUI) ShowAlert(a pipanel.AlertEvent) error {
+func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	_, err := glib.IdleAdd(func() {
-		w, err := newAlertWindow(a)
+		w, err := newAlertWindow(e)
 
 		if err != nil {
 			panic(err)
@@ -33,6 +33,21 @@ func (g *GUI) ShowAlert(a pipanel.AlertEvent) error {
 	})
 
 	return err
+}
+
+func (g *GUI) PlaySound(e pipanel.SoundEvent) error {
+	g.log.Println("Not yet implemented.") // FIXME
+	return nil
+}
+
+func (g *GUI) DoPowerAction(e pipanel.PowerEvent) error {
+	g.log.Println("Not yet implemented.") // FIXME
+	return nil
+}
+
+func (g *GUI) SetBrightness(e pipanel.BrightnessEvent) error {
+	g.log.Println("Not yet implemented.") // FIXME
+	return nil
 }
 
 func (g *GUI) Shutdown() {
