@@ -1,0 +1,12 @@
+# Windows Ignores
+Thumbs.db
+Desktop.ini
+
+# OS X Ignores
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE Files
+.vscode/
