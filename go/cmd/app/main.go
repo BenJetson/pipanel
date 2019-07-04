@@ -7,8 +7,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/BenJetson/pipanel/go/console"
+	"github.com/BenJetson/pipanel/go/gui"
 	"github.com/BenJetson/pipanel/go/server"
+	"github.com/gotk3/gotk3/gtk"
 )
 
 func main() {
@@ -24,9 +25,10 @@ func main() {
 	signal.Notify(interrupt, os.Interrupt)
 
 	// Create the frontend instance.
-	// gtk.Init(nil)
-	// go gtk.Main()
-	frontend := console.New(logFrontend)
+	gtk.Init(nil)
+	go gtk.Main()
+	frontend := gui.New(logFrontend)
+	// frontend := console.New(logFrontend)
 
 	// Start the server.
 	server := server.New(logServer, 1035, frontend)
@@ -38,11 +40,11 @@ func main() {
 	case <-interrupt:
 		fmt.Println("sigint detected")
 		server.Shutdown(context.TODO()) // nolint: errcheck
-		// gtk.MainQuit()
+		gtk.MainQuit()
 	case <-shutdown:
 		fmt.Println("server shutdown detected")
 		server.Shutdown(context.TODO()) // nolint: errcheck
-		// gtk.MainQuit()
+		gtk.MainQuit()
 	}
 
 }
