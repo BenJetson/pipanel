@@ -1,4 +1,4 @@
-module github.com/BenJetson/pipanel
+module github.com/BenJetson/pipanel/go
 
 go 1.12
 
