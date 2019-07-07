@@ -1,4 +1,4 @@
-package gui 
+package gui
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ type alertWindow struct {
 	label      *gtk.Label
 	icon       *gtk.Image
 	timestamp  time.Time
-	active     bool
+	inactive   bool
 }
 
 func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
@@ -27,6 +27,8 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 	var object glib.IObject
 	var err error
 	var ok bool
+
+	w.timestamp = time.Now()
 
 	// Read in the view layout from the Glade file.
 	// TODO: Fix this so that it is directory agnostic.
@@ -88,14 +90,9 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 		return nil, errors.New("object ought to of been a button")
 	}
 
-	// Connect signals.
-	if _, err = w.dismissBtn.Connect("click", w.Destroy); err != nil {
-		return nil, err
-	}
-
 	// Update the timestamp of this window once per second.
 	glib.TimeoutAdd(1000, func() bool {
-		if w.active {
+		if w.inactive {
 			return false
 		}
 
@@ -118,14 +115,16 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 	return &w, nil
 }
 
-func (w *alertWindow) ShowAll() { w.window.ShowAll() }
+func (w *alertWindow) ShowAll() {
+	w.window.ShowAll()
+	w.window.SetKeepAbove(true)
+}
 
-func (w *alertWindow) Deactivate() { w.active = false }
+func (w *alertWindow) Deactivate() { w.inactive = true }
 
 func (w *alertWindow) Destroy() {
-	if w.active {
+	if !w.inactive {
 		w.Deactivate()
-		w.window.Close()
 		w.window.Destroy()
 	}
 }
@@ -138,7 +137,7 @@ func (w *alertWindow) setTimeout(d time.Duration) {
 	expiryTime := w.timestamp.Add(d)
 
 	glib.TimeoutAdd(100, func() bool {
-		if !w.active {
+		if w.inactive {
 			return false
 		}
 
