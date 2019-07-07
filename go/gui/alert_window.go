@@ -4,10 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/BenJetson/humantime"
-	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
+
+	"github.com/BenJetson/humantime"
+	pipanel "github.com/BenJetson/pipanel/go"
 )
 
 type alertWindow struct {
