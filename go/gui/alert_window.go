@@ -1,4 +1,4 @@
-package gui
+package gui 
 
 import (
 	"errors"
@@ -110,14 +110,22 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 		w.setTimeout(time.Millisecond * a.Timeout)
 	}
 
+	// Register events.
+	w.window.Connect("destroy", w.Deactivate)
+	w.window.Connect("delete-event", w.Deactivate)
+	w.dismissBtn.Connect("clicked", w.Destroy)
+
 	return &w, nil
 }
 
 func (w *alertWindow) ShowAll() { w.window.ShowAll() }
 
+func (w *alertWindow) Deactivate() { w.active = false }
+
 func (w *alertWindow) Destroy() {
 	if w.active {
-		w.active = false
+		w.Deactivate()
+		w.window.Close()
 		w.window.Destroy()
 	}
 }
