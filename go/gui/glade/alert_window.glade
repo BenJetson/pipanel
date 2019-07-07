@@ -57,7 +57,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="halign">center</property>
-            <property name="fraction">0.75</property>
+            <property name="fraction">1</property>
             <property name="pulse_step">0.050000000000000003</property>
           </object>
           <packing>
