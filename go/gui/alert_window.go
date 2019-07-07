@@ -92,12 +92,13 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 	}
 
 	// Update the timestamp of this window once per second.
+	w.updateSubtitle()
 	glib.TimeoutAdd(1000, func() bool {
 		if w.inactive {
 			return false
 		}
 
-		w.headerBar.SetSubtitle(humantime.Since(w.timestamp))
+		w.updateSubtitle()
 		return true
 	})
 
@@ -106,6 +107,8 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 	w.setText(a.Message)
 	if !a.Perpetual {
 		w.setTimeout(time.Millisecond * a.Timeout)
+	} else {
+		w.pulseProgress()
 	}
 
 	// Register events.
@@ -115,6 +118,8 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 
 	return &w, nil
 }
+
+func (w *alertWindow) updateSubtitle() { w.headerBar.SetSubtitle(humantime.Since(w.timestamp)) }
 
 func (w *alertWindow) ShowAll() {
 	w.window.ShowAll()
@@ -137,7 +142,7 @@ func (w *alertWindow) setText(text string) { w.label.SetText(text) }
 func (w *alertWindow) setTimeout(d time.Duration) {
 	expiryTime := w.timestamp.Add(d)
 
-	glib.TimeoutAdd(100, func() bool {
+	glib.TimeoutAdd(33, func() bool {
 		if w.inactive {
 			return false
 		}
@@ -146,6 +151,23 @@ func (w *alertWindow) setTimeout(d time.Duration) {
 			w.Destroy()
 			return false
 		}
+
+		since := time.Since(w.timestamp)
+		frac := 1 - (float64(since) / float64(d))
+
+		w.progress.SetFraction(frac)
+
+		return true
+	})
+}
+
+func (w *alertWindow) pulseProgress() {
+	glib.TimeoutAdd(80, func() bool {
+		if w.inactive {
+			return false
+		}
+
+		w.progress.Pulse()
 
 		return true
 	})
