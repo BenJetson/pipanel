@@ -1,0 +1,7 @@
+{
+    "message": "This is the alert message.",
+    "timeout": 5000,
+    "perpetual": false,
+    "icon": "gtk-dialog-warning",
+    "sound": "tone.wav"
+}
