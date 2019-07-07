@@ -10,3 +10,6 @@ Desktop.ini
 
 # IDE Files
 .vscode/
+
+# Glade Cache files
+*.glade~
