@@ -13,3 +13,6 @@ Desktop.ini
 
 # Glade Cache files
 *.glade~
+
+# Vim Swapfiles
+*.swp
