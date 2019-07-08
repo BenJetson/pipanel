@@ -17,7 +17,6 @@
  */
 
 import groovy.json.JsonOutput
-import java.net.URI
 
 metadata {
 	definition (
@@ -153,7 +152,7 @@ private makeAlertParameters(String text) {
 		if (pair.size() != 2) continue
 		
 		def key = pair[0].toLowerCase()
-		def value = new URI(pair[1]).getPath()
+		def value = pair[1]
 
 		// Try to cast to the most relevant type possible.
 		if (value.isInteger()) {
