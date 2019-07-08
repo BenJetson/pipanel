@@ -83,7 +83,7 @@ func (s *Server) handlePowerEvent(w http.ResponseWriter, r *http.Request) {
 
 	err = s.frontend.DoPowerAction(e)
 
-	if s.handleError(err, "Failed to perform requested power action.", w, http.StatusBadRequest) {
+	if s.handleError(err, "Failed to perform requested power action.", w, http.StatusInternalServerError) {
 		return
 	}
 
@@ -97,6 +97,12 @@ func (s *Server) handleBrightnessEvent(w http.ResponseWriter, r *http.Request) {
 	err := parseAndDecodeBody(r.Body, &e)
 
 	if s.handleError(err, "JSON is invalid or violates schema.", w, http.StatusBadRequest) {
+		return
+	}
+
+	err = s.frontend.SetBrightness(e)
+
+	if s.handleError(err, "Failed to perform requested brightness action.", w, http.StatusInternalServerError) {
 		return
 	}
 
