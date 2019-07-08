@@ -42,6 +42,8 @@ func New(l *log.Logger, port int, frontend pipanel.Frontend) *Server {
 func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 	defer close(closeOnReturn)
 
+	s.log.Println("Server started.")
+
 	err := s.httpd.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
