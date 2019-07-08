@@ -34,10 +34,10 @@ type AlertEvent struct {
 
 // A SoundEvent contains information about a tone that will be played on the panel.
 type SoundEvent struct {
-	// Tone is the name of the sound file to be played. Path is relative to
+	// Sound is the name of the sound file to be played. Path is relative to
 	// the sound folder configured in the preference file. Empty string will
 	// result in no sound being played.
-	Tone string `json:"tone"`
+	Sound string `json:"sound"`
 }
 
 // PowerAction describes a system power action to be taken by the panel.

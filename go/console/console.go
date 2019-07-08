@@ -22,7 +22,7 @@ func (c *ConsoleFrontend) ShowAlert(e pipanel.AlertEvent) error {
 }
 
 func (c *ConsoleFrontend) PlaySound(e pipanel.SoundEvent) error {
-	c.log.Printf("## SOUND EVENT ##\nTone: %s\n", e.Tone)
+	c.log.Printf("## SOUND EVENT ##\nSound: %s\n", e.Sound)
 	return nil
 }
 
