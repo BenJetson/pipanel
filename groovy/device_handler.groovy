@@ -17,6 +17,7 @@
  */
 
 import groovy.json.JsonOutput
+import java.net.URI
 
 metadata {
 	definition (
@@ -152,13 +153,13 @@ private makeAlertParameters(String text) {
 		if (pair.size() != 2) continue
 		
 		def key = pair[0].toLowerCase()
-		def value = java.net.URI(pair[1]).getPath()
+		def value = new URI(pair[1]).getPath()
 
 		// Try to cast to the most relevant type possible.
 		if (value.isInteger()) {
-			parameters.put(key, (int)value)
+			parameters.put(key, value as Integer)
 		} else if (value.isNumber()) {
-			parameters.put(key, (double)value)
+			parameters.put(key, value as Double)
 		} else if (value.toLowerCase() == "true") {
 			parameters.put(key, true)
 		} else if (value.toLowerCase() == "false") {
