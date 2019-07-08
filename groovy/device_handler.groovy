@@ -77,12 +77,10 @@ metadata {
  * @param data     The object that will be marshalled to JSON and sent 
  *                 to the API.
  */
-private makeApiHubAction(String actionType, Map data) {
-	data.put("type", actionType)
-	
+private makeApiHubAction(String actionType, Map data) {	
 	return new physicalgraph.device.HubAction(
 		method: "POST",
-		path: "/",
+		path: "/" + actionType,
 		headers: [
 			"HOST":  ip + ":" + port,
 			"Content-Type": "application/json"
@@ -136,25 +134,25 @@ def beep() {
 	])
 }
 
-private makeAlertParameters(text) {
-	splitText = text.split("&")
-	numParams = splitText.size()
+private makeAlertParameters(String text) {
+	def splitText = text.split("&")
+	def numParams = splitText.size()
 
 	if (numParams < 1) {
 		return [:]
 	}
 
-	parameters = [:]
+	def parameters = [:]
 
-	parameters.put("text", splitText[0])
+	parameters.put("message", splitText[0])
 
-	for (i=1;i<numParams; i++) {
-		pair = splitText[i].split("=")
+	for (int i=1;i<numParams; i++) {
+		def pair = splitText[i].split("=")
 
 		if (pair.size() != 2) continue
 		
-		key = pair[0].toLowerCase()
-		value = java.net.URI(pair[1]).getPath()
+		def key = pair[0].toLowerCase()
+		def value = java.net.URI(pair[1]).getPath()
 
 		// Try to cast to the most relevant type possible.
 		if (value.isInteger()) {
