@@ -1,4 +1,4 @@
-package gui
+package gtkalerter
 
 import (
 	"errors"

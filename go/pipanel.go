@@ -2,16 +2,36 @@ package pipanel
 
 import "time"
 
-// Frontend provides abstraction for processing PiPanel events.
-type Frontend interface {
+// An Alerter presents alert messages to the user.
+type Alerter interface {
 	// ShowAlert displays an alert on the screen.
 	ShowAlert(e AlertEvent) error
+}
+
+// An AudioPlayer plays audio clips stored on the system.
+type AudioPlayer interface {
 	// PlaySound plays the specified sound.
 	PlaySound(e SoundEvent) error
+}
+
+// A PowerManager controls system power functions.
+type PowerManager interface {
 	// DoPowerAction performs the system power action.
 	DoPowerAction(e PowerEvent) error
+}
+
+// A DisplayManager controls properties of the display.
+type DisplayManager interface {
 	// SetBrightness alters the brightness of the panel.
 	SetBrightness(e BrightnessEvent) error
+}
+
+// Frontend provides abstraction for processing PiPanel events.
+type Frontend interface {
+	Alerter
+	AudioPlayer
+	PowerManager
+	DisplayManager
 }
 
 // An AlertEvent contains information about an alert display request.
@@ -62,5 +82,5 @@ type PowerEvent struct {
 type BrightnessEvent struct {
 	// Level is the level that the brightness of the panel should be set to.
 	// This must be on the range [0,255].
-	Level int `json:"level"`
+	Level uint8 `json:"level"`
 }
