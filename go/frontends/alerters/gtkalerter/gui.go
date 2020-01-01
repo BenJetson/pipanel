@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gotk3/gotk3/glib"
+	"github.com/gotk3/gotk3/gtk"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
@@ -35,7 +36,14 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	return err
 }
 
-func (g *GUI) Shutdown() {
+func (g *GUI) Init() error {
+	gtk.Init(nil)
+	go gtk.Main()
+
+	return nil
+}
+
+func (g *GUI) Cleanup() error {
 	g.log.Println("Shutting down GUI...")
 
 	for _, w := range g.windows {
@@ -43,4 +51,7 @@ func (g *GUI) Shutdown() {
 	}
 
 	g.windows = nil
+
+	gtk.MainQuit()
+	return nil
 }
