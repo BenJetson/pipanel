@@ -22,3 +22,11 @@ func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
 
 	return nil
 }
+
+func (d *DisplayLog) Init() error {
+	return nil
+}
+
+func (d *DisplayLog) Cleanup() error {
+	return nil
+}

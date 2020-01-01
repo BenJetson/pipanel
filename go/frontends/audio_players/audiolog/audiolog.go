@@ -22,3 +22,11 @@ func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
 
 	return nil
 }
+
+func (a *AudioLog) Init() error {
+	return nil
+}
+
+func (a *AudioLog) Cleanup() error {
+	return nil
+}

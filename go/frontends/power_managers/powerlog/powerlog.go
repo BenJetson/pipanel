@@ -22,3 +22,11 @@ func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
 
 	return nil
 }
+
+func (p *PowerLog) Init() error {
+	return nil
+}
+
+func (p *PowerLog) Cleanup() error {
+	return nil
+}

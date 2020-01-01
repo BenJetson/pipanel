@@ -25,3 +25,11 @@ func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
 
 	return nil
 }
+
+func (a *AlertLog) Init() error {
+	return nil
+}
+
+func (a *AlertLog) Cleanup() error {
+	return nil
+}
