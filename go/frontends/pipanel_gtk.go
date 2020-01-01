@@ -2,18 +2,20 @@ package frontends
 
 import (
 	"log"
+	"time"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/BenJetson/pipanel/go/frontends/alerters/ttsalerter"
+	"github.com/faiface/beep/speaker"
 
 	"github.com/BenJetson/pipanel/go/frontends/alerters/gtkalerter"
-	"github.com/BenJetson/pipanel/go/frontends/audio_players/audiolog"
+	"github.com/BenJetson/pipanel/go/frontends/audio_players/beeper"
 	"github.com/BenJetson/pipanel/go/frontends/display_managers/displaylog"
 	"github.com/BenJetson/pipanel/go/frontends/power_managers/powerlog"
 )
 
 type PiPanelGTK struct {
-	*audiolog.AudioLog
+	*beeper.Beeper
 	*gtkalerter.GUI
 	*ttsalerter.TTSAlerter
 	*displaylog.DisplayLog
@@ -21,10 +23,12 @@ type PiPanelGTK struct {
 }
 
 func NewPiPanelGTK(log *log.Logger) *PiPanelGTK {
+	speaker.Init(beeper.SampleRate, beeper.SampleRate.N(time.Second/10))
+
 	return &PiPanelGTK{
 		GUI:        gtkalerter.New(log),
 		TTSAlerter: ttsalerter.New(log, "/tmp/alert-tts/", "en"),
-		AudioLog:   audiolog.New(log),
+		Beeper:     beeper.New(log, "/tmp/pipanel-sounds/"),
 		DisplayLog: displaylog.New(log),
 		PowerLog:   powerlog.New(log),
 	}
