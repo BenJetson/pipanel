@@ -9,6 +9,7 @@ import (
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/BenJetson/pipanel/go/frontends"
+	"github.com/BenJetson/pipanel/go/middleware/errorlog"
 	"github.com/BenJetson/pipanel/go/server"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -34,6 +35,9 @@ func main() {
 	var frontend pipanel.Frontend
 	// frontend = frontends.NewConsoleFrontend(logFrontend)
 	frontend = frontends.NewPiPanelGTK(logFrontend)
+
+	// Use error log middleware.
+	frontend = errorlog.New(frontend, logFrontend)
 
 	// Start the server.
 	server := server.New(logServer, 1035, frontend)
