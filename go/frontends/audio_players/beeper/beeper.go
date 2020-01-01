@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 
@@ -90,5 +91,13 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	speaker.Play(streamToPlay)
 	b.log.Printf("Playing sound at '%s'", pathToFile)
 
+	return nil
+}
+
+func (b *Beeper) Init() error {
+	return speaker.Init(SampleRate, SampleRate.N(time.Second/10))
+}
+
+func (b *Beeper) Cleanup() error {
 	return nil
 }
