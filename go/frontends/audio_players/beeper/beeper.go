@@ -88,6 +88,7 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	}
 
 	speaker.Play(streamToPlay)
+	b.log.Printf("Playing sound at '%s'", pathToFile)
 
 	return nil
 }
