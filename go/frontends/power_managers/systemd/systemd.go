@@ -1,6 +1,7 @@
 package systemdpwr
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 
@@ -35,4 +36,6 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 		s.log.Println("Turning off the display.")
 		return displayOffCmd.Run()
 	}
+
+	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
