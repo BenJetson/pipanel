@@ -29,18 +29,33 @@ func main() {
 	// frontend = frontends.NewConsoleFrontend(logFrontend)
 	frontend = frontends.NewPiPanelGTK(logFrontend)
 
+	if err := frontend.Init(); err != nil {
+		panic(err)
+	}
+
 	// Start the server.
 	server := server.New(logServer, 1035, frontend)
 
 	go server.ListenAndServe(shutdown)
 
+	// Create cleanup function for use upon interrupt/shutdown.
+	cleanup := func() {
+		if err := server.Shutdown(context.TODO()); err != nil {
+			panic(err)
+		}
+
+		if err := frontend.Cleanup(); err != nil {
+			panic(err)
+		}
+	}
+
 	// Wait for all goroutines to shut down.
 	select {
 	case <-interrupt:
 		fmt.Println("sigint detected")
-		server.Shutdown(context.TODO()) // nolint: errcheck
+		cleanup()
 	case <-shutdown:
 		fmt.Println("server shutdown detected")
-		server.Shutdown(context.TODO()) // nolint: errcheck
+		cleanup()
 	}
 }
