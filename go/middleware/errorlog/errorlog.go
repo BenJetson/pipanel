@@ -13,6 +13,11 @@ type ErrorLog struct {
 	log *log.Logger
 }
 
+// New creates an ErrorLog instance.
+func New(f pipanel.Frontend, log *log.Logger) *ErrorLog {
+	return &ErrorLog{f, log}
+}
+
 func (elg *ErrorLog) logError(err error) {
 	elg.log.Fatalf("Encountered an error when processing event: %s", err.Error())
 }
