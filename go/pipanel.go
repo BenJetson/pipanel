@@ -51,49 +51,73 @@ type Frontend struct {
 }
 
 // Init initializes all components of the Frontend.
-func (f *Frontend) Init() {
+func (f *Frontend) Init() error {
 	if f.InitCleaner != nil {
-		f.InitCleaner.Init()
+		if err := f.InitCleaner.Init(); err != nil {
+			return err
+		}
 	}
 
 	if f.Alerter != nil {
-		f.Alerter.Init()
+		if err := f.Alerter.Init(); err != nil {
+			return err
+		}
 	}
 
 	if f.AudioPlayer != nil {
-		f.AudioPlayer.Init()
+		if err := f.AudioPlayer.Init(); err != nil {
+			return err
+		}
 	}
 
 	if f.PowerManager != nil {
-		f.PowerManager.Init()
+		if err := f.PowerManager.Init(); err != nil {
+			return err
+		}
 	}
 
 	if f.DisplayManager != nil {
-		f.DisplayManager.Init()
+		if err := f.DisplayManager.Init(); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // Cleanup tears down all components of the Frontend.
-func (f *Frontend) Cleanup() {
+func (f *Frontend) Cleanup() error {
 	if f.InitCleaner != nil {
-		f.InitCleaner.Cleanup()
+		if err := f.InitCleaner.Cleanup(); err != nil {
+			return err
+		}
 	}
 
 	if f.Alerter != nil {
-		f.Alerter.Cleanup()
+		if err := f.Alerter.Cleanup(); err != nil {
+			return err
+		}
 	}
 
 	if f.AudioPlayer != nil {
-		f.AudioPlayer.Cleanup()
+		if err := f.AudioPlayer.Cleanup(); err != nil {
+			return err
+		}
 	}
 
 	if f.PowerManager != nil {
-		f.PowerManager.Cleanup()
+		if err := f.PowerManager.Cleanup(); err != nil {
+			return err
+		}
 	}
 
 	if f.DisplayManager != nil {
-		f.DisplayManager.Cleanup()
+		if err := f.DisplayManager.Cleanup(); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // An AlertEvent contains information about an alert display request.
