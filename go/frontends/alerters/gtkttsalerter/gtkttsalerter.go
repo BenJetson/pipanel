@@ -1,6 +1,7 @@
 package gtkttsalerter
 
 import (
+	"log"
 	"strings"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -13,8 +14,15 @@ const noTTSPrefix string = "@NOTTS@"
 // GTKTTSAlerter handles PiPanel alert events by displaying them on-screen and
 // reading them out loud.
 type GTKTTSAlerter struct {
-	gtkalerter.GUI
-	ttsalerter.TTSAlerter
+	*gtkalerter.GUI
+	*ttsalerter.TTSAlerter
+}
+
+func New(log *log.Logger, tmpDir, language string) *GTKTTSAlerter {
+	return &GTKTTSAlerter{
+		GUI:        gtkalerter.New(log),
+		TTSAlerter: ttsalerter.New(log, tmpDir, language),
+	}
 }
 
 func (g *GTKTTSAlerter) Init() error {
