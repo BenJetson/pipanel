@@ -35,21 +35,6 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	return err
 }
 
-func (g *GUI) PlaySound(e pipanel.SoundEvent) error {
-	g.log.Println("Not yet implemented.") // FIXME
-	return nil
-}
-
-func (g *GUI) DoPowerAction(e pipanel.PowerEvent) error {
-	g.log.Println("Not yet implemented.") // FIXME
-	return nil
-}
-
-func (g *GUI) SetBrightness(e pipanel.BrightnessEvent) error {
-	g.log.Println("Not yet implemented.") // FIXME
-	return nil
-}
-
 func (g *GUI) Shutdown() {
 	g.log.Println("Shutting down GUI...")
 
