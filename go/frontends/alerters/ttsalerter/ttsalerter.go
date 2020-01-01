@@ -34,3 +34,11 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 
 	return nil
 }
+
+func (t *TTSAlerter) Init() error {
+	return nil
+}
+
+func (t *TTSAlerter) Cleanup() error {
+	return nil
+}
