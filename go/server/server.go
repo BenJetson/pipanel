@@ -11,11 +11,11 @@ import (
 
 type Server struct {
 	log      *log.Logger
-	frontend pipanel.Frontend
+	frontend *pipanel.Frontend
 	httpd    *http.Server
 }
 
-func New(l *log.Logger, port int, frontend pipanel.Frontend) *Server {
+func New(l *log.Logger, port int, frontend *pipanel.Frontend) *Server {
 	// Create a multiplexer for routing requests.
 	mux := http.NewServeMux()
 
