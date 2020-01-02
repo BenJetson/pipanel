@@ -8,8 +8,8 @@ import (
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
-var shutdownCmd *exec.Cmd = exec.Command("sudo shutdown", "now")
-var rebootCmd *exec.Cmd = exec.Command("sudo reboot", "now")
+var shutdownCmd *exec.Cmd = exec.Command("sudo /sbin/shutdown", "now")
+var rebootCmd *exec.Cmd = exec.Command("sudo /sbin/reboot", "now")
 var displayOffCmd *exec.Cmd = exec.Command("xset dpms force off")
 
 // SystemdPowerManager handles pipanel power events for systemd-based systems
