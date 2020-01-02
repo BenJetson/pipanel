@@ -14,25 +14,25 @@ import (
 )
 
 type alertWindow struct {
-	window     *gtk.Window
-	headerBar  *gtk.HeaderBar
-	topLayout  *gtk.Box
-	boxLayout  *gtk.Box
-	dismissBtn *gtk.Button
-	progress   *gtk.ProgressBar
-	label      *gtk.Label
-	icon       *gtk.Image
-	timestamp  time.Time
-	inactive   bool
-	onDestroy  func()
+	window       *gtk.Window
+	headerBar    *gtk.HeaderBar
+	topLayout    *gtk.Box
+	boxLayout    *gtk.Box
+	dismissBtn   *gtk.Button
+	progress     *gtk.ProgressBar
+	label        *gtk.Label
+	icon         *gtk.Image
+	timestamp    time.Time
+	inactive     bool
+	afterCleanup func()
 }
 
-func newAlertWindow(a pipanel.AlertEvent, onDestroy func()) (*alertWindow, error) {
+func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, error) {
 	var w alertWindow
 	var err error
 
 	w.timestamp = time.Now()
-	w.onDestroy = onDestroy
+	w.afterCleanup = afterCleanup
 
 	// Create the window.
 	if w.window, err = gtk.WindowNew(gtk.WINDOW_TOPLEVEL); err != nil {
@@ -152,28 +152,33 @@ func (w *alertWindow) ShowAll() {
 	w.window.SetKeepAbove(true)
 }
 
-func (w *alertWindow) Deactivate() { w.inactive = true }
+func (w *alertWindow) Deactivate() {
+	w.inactive = true
+	w.Cleanup()
+}
 
 func (w *alertWindow) Destroy() {
 	if !w.inactive {
 		// Destroy the window.
-		w.Deactivate()
 		w.window.Destroy()
-
-		// Clear pointers to components so the garbage collector will pick them
-		// up and deallocate the (now unreferenced) objects.
-		w.window = nil
-		w.headerBar = nil
-		w.topLayout = nil
-		w.boxLayout = nil
-		w.dismissBtn = nil
-		w.progress = nil
-		w.label = nil
-		w.icon = nil
-
-		// Call the onDestroy handler.
-		w.onDestroy()
+		w.Deactivate()
 	}
+}
+
+func (w *alertWindow) Cleanup() {
+	// Clear pointers to components so the garbage collector will pick them
+	// up and deallocate the (now unreferenced) objects.
+	w.window = nil
+	w.headerBar = nil
+	w.topLayout = nil
+	w.boxLayout = nil
+	w.dismissBtn = nil
+	w.progress = nil
+	w.label = nil
+	w.icon = nil
+
+	// Call the afterCleanup handler.
+	w.afterCleanup()
 }
 
 func (w *alertWindow) setText(text string) {
