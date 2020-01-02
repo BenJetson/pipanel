@@ -24,13 +24,15 @@ type alertWindow struct {
 	icon       *gtk.Image
 	timestamp  time.Time
 	inactive   bool
+	onDestroy  func()
 }
 
-func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
+func newAlertWindow(a pipanel.AlertEvent, onDestroy func()) (*alertWindow, error) {
 	var w alertWindow
 	var err error
 
 	w.timestamp = time.Now()
+	w.onDestroy = onDestroy
 
 	// Create the window.
 	if w.window, err = gtk.WindowNew(gtk.WINDOW_TOPLEVEL); err != nil {
@@ -168,6 +170,9 @@ func (w *alertWindow) Destroy() {
 		w.progress = nil
 		w.label = nil
 		w.icon = nil
+
+		// Call the onDestroy handler.
+		w.onDestroy()
 	}
 }
 

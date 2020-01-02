@@ -22,7 +22,7 @@ func New(l *log.Logger) *GUI {
 
 func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	_, err := glib.IdleAdd(func() {
-		w, err := newAlertWindow(e)
+		w, err := newAlertWindow(e, g.removeInactiveWindows)
 
 		if err != nil {
 			panic(err)
@@ -42,6 +42,22 @@ func (g *GUI) Init() error {
 	go gtk.Main()
 
 	return nil
+}
+
+func (g *GUI) removeInactiveWindows() {
+	g.log.Println("Clearing inactive windows...")
+
+	count := 0
+
+	for i := len(g.windows) - 1; i > -1; i-- {
+		if g.windows[i].inactive {
+			g.windows = append(g.windows[:i], g.windows[i+1:]...)
+
+			count++
+		}
+	}
+
+	g.log.Printf("Cleared all inactive windows: %d total.\n", count)
 }
 
 func (g *GUI) Cleanup() error {
