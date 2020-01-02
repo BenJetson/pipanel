@@ -1,7 +1,6 @@
 package beeper
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -14,6 +13,8 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
 )
+
+const libraryPathKey string = "PIPANEL_AUDIO_LIBRARY_PATH"
 
 // SampleRate is the sample rate of the beep/speaker. Defaults to 16 kHz.
 // If the sample rate of the beep/speaker is different, change the value to
@@ -29,26 +30,8 @@ type Beeper struct {
 }
 
 // New creates a Beeper instance.
-func New(log *log.Logger, libraryPath string) *Beeper {
-	// Enforce trailing slash, which makes concatenation with filenames easier.
-	if libraryPath[len(libraryPath)-1] != '/' {
-		libraryPath += "/"
-	}
-
-	// Check to make sure that the directory actually exists; panic otherwise.
-	d, err := os.Open(libraryPath)
-
-	if os.IsNotExist(err) {
-		err = errors.New("directory referenced by libraryPath does not exist")
-	}
-
-	if err != nil {
-		panic(err)
-	}
-
-	d.Close()
-
-	return &Beeper{log, libraryPath}
+func New(log *log.Logger) *Beeper {
+	return &Beeper{log: log}
 }
 
 func validateAudioFilename(fileName string) error {
@@ -95,6 +78,31 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 }
 
 func (b *Beeper) Init() error {
+	// Fetch the library path from the environment. If unset, throw an error.
+	libraryPath := os.Getenv(libraryPathKey)
+
+	if len(libraryPath) < 1 {
+		return fmt.Errorf("must set %s environment variable", libraryPathKey)
+	}
+
+	// Enforce trailing slash, which makes concatenation with filenames easier.
+	if libraryPath[len(libraryPath)-1] != '/' {
+		libraryPath += "/"
+	}
+
+	// Check to make sure that the directory actually exists; panic otherwise.
+	d, err := os.Open(libraryPath)
+
+	if os.IsNotExist(err) {
+		err = fmt.Errorf("directory specified by %s not found", libraryPathKey)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	d.Close()
+
 	return speaker.Init(SampleRate, SampleRate.N(time.Second/10))
 }
 
