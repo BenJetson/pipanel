@@ -101,6 +101,9 @@ func (b *Beeper) Init() error {
 		return err
 	}
 
+	// Library path is valid. Save library path.
+	b.libraryPath = libraryPath
+
 	d.Close()
 
 	return speaker.Init(SampleRate, SampleRate.N(time.Second/10))
