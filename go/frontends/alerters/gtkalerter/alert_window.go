@@ -150,6 +150,7 @@ func (w *alertWindow) updateSubtitle() { w.headerBar.SetSubtitle(humantime.Since
 func (w *alertWindow) ShowAll() {
 	w.window.ShowAll()
 	w.window.SetKeepAbove(true)
+	w.window.Present()
 }
 
 func (w *alertWindow) Deactivate() {
