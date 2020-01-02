@@ -16,12 +16,14 @@ const noTTSPrefix string = "@NOTTS@"
 type GTKTTSAlerter struct {
 	*gtkalerter.GUI
 	*ttsalerter.TTSAlerter
+	log *log.Logger
 }
 
 func New(log *log.Logger, tmpDir, language string) *GTKTTSAlerter {
 	return &GTKTTSAlerter{
 		GUI:        gtkalerter.New(log),
 		TTSAlerter: ttsalerter.New(log, tmpDir, language),
+		log:        log,
 	}
 }
 
@@ -57,6 +59,7 @@ func (g *GTKTTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	if strings.HasPrefix(e.Message, noTTSPrefix) {
 		shouldReadMsg = false
 		e.Message = e.Message[len(noTTSPrefix):]
+		g.log.Println("Detected No TTS flag; skipping alert read-out.")
 	}
 
 	err := g.GUI.ShowAlert(e)
