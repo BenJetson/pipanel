@@ -28,6 +28,7 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 			panic(err)
 		}
 
+		g.log.Println("Displaying alert window to user.")
 		w.ShowAll()
 
 		g.windows = append(g.windows, w)
