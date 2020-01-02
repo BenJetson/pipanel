@@ -10,7 +10,7 @@ import (
 
 var shutdownCmd *exec.Cmd = exec.Command("sudo", "shutdown", "now")
 var rebootCmd *exec.Cmd = exec.Command("sudo", "reboot", "now")
-var displayOffCmd *exec.Cmd = exec.Command("xset dpms force off")
+var displayOffCmd *exec.Cmd = exec.Command("xset", "dpms force off")
 
 // SystemdPowerManager handles pipanel power events for systemd-based systems
 // with X display servers.
