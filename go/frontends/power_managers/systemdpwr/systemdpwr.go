@@ -8,10 +8,6 @@ import (
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
-var shutdownCmd *exec.Cmd = exec.Command("sudo", "shutdown", "now")
-var rebootCmd *exec.Cmd = exec.Command("sudo", "reboot", "now")
-var displayOffCmd *exec.Cmd = exec.Command("xset", "dpms force off")
-
 // SystemdPowerManager handles pipanel power events for systemd-based systems
 // with X display servers.
 type SystemdPowerManager struct {
@@ -28,13 +24,13 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 	switch e.Action {
 	case pipanel.PowerActionShutdown:
 		s.log.Println("Shutting down the system NOW.")
-		return shutdownCmd.Run()
+		return exec.Command("sudo", "shutdown", "now").Run()
 	case pipanel.PowerActionReboot:
 		s.log.Println("Rebooting the system NOW.")
-		return rebootCmd.Run()
+		return exec.Command("sudo", "reboot", "now").Run()
 	case pipanel.PowerActionDisplayOff:
 		s.log.Println("Turning off the display.")
-		return displayOffCmd.Run()
+		return exec.Command("xset", "dpms force off").Run()
 	}
 
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
