@@ -43,6 +43,10 @@ func (s *Server) handleAlertEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !s.processSoundEvent(e.SoundEvent, w) {
+		return
+	}
+
 	err = s.frontend.ShowAlert(e)
 
 	if s.handleError(err, "Failed to present alert to user.", w, http.StatusInternalServerError) {
@@ -62,13 +66,26 @@ func (s *Server) handleSoundEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.frontend.PlaySound(e)
-
-	if s.handleError(err, "Failed to play sound.", w, http.StatusInternalServerError) {
+	if !s.processSoundEvent(e, w) {
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) processSoundEvent(e pipanel.SoundEvent, w http.ResponseWriter) bool {
+	if len(e.Sound) < 1 {
+		s.log.Println("Ignoring empty sound event.")
+		return true
+	}
+
+	err := s.frontend.PlaySound(e)
+
+	if s.handleError(err, "Failed to play sound.", w, http.StatusInternalServerError) {
+		return false
+	}
+
+	return true
 }
 
 func (s *Server) handlePowerEvent(w http.ResponseWriter, r *http.Request) {
