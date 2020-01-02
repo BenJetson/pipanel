@@ -7,8 +7,8 @@ import (
 
 	"github.com/BenJetson/pipanel/go/frontends/alerters/gtkttsalerter"
 	"github.com/BenJetson/pipanel/go/frontends/audio_players/beeper"
-	"github.com/BenJetson/pipanel/go/frontends/display_managers/displaylog"
-	"github.com/BenJetson/pipanel/go/frontends/power_managers/powerlog"
+	"github.com/BenJetson/pipanel/go/frontends/display_managers/pitouch"
+	"github.com/BenJetson/pipanel/go/frontends/power_managers/systemdpwr"
 )
 
 // NewPiPanelGTK creates a pipanel.Frontend that supports the RPi official
@@ -17,7 +17,7 @@ func NewPiPanelGTK(log *log.Logger) *pipanel.Frontend {
 	return &pipanel.Frontend{
 		Alerter:        gtkttsalerter.New(log, "/tmp/alert-tts/", "en"),
 		AudioPlayer:    beeper.New(log, "/tmp/pipanel-sounds/"),
-		DisplayManager: displaylog.New(log),
-		PowerManager:   powerlog.New(log),
+		DisplayManager: pitouch.New(log),
+		PowerManager:   systemdpwr.New(log),
 	}
 }
