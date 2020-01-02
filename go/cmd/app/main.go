@@ -14,8 +14,8 @@ import (
 
 func main() {
 	// Create log instances.
-	logServer := log.New(os.Stdout, "server", log.LstdFlags)
-	logFrontend := log.New(os.Stdout, "frontend", log.LstdFlags)
+	logServer := log.New(os.Stdout, "server ", log.LstdFlags)
+	logFrontend := log.New(os.Stdout, "frontend ", log.LstdFlags)
 
 	// Create signaling channels for concurrent operations.
 	interrupt := make(chan os.Signal, 1)
