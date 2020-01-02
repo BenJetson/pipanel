@@ -2,6 +2,7 @@ package gtkttsalerter
 
 import (
 	"log"
+	"os"
 	"strings"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -9,14 +10,16 @@ import (
 	"github.com/BenJetson/pipanel/go/frontends/alerters/ttsalerter"
 )
 
-const noTTSPrefix string = "@NOTTS@"
+const noTTSPrefixKey string = "PIPANEL_NOTTS_PREFIX"
+const noTTSPrefixDefault string = "@NOTTS@"
 
 // GTKTTSAlerter handles PiPanel alert events by displaying them on-screen and
 // reading them out loud.
 type GTKTTSAlerter struct {
 	*gtkalerter.GUI
 	*ttsalerter.TTSAlerter
-	log *log.Logger
+	log         *log.Logger
+	noTTSPrefix string
 }
 
 func New(log *log.Logger) *GTKTTSAlerter {
@@ -28,6 +31,12 @@ func New(log *log.Logger) *GTKTTSAlerter {
 }
 
 func (g *GTKTTSAlerter) Init() error {
+	// Fetch NoTTS prefix from environment.
+	g.noTTSPrefix = os.Getenv(noTTSPrefixKey)
+	if len(g.noTTSPrefix) < 1 {
+		g.noTTSPrefix = noTTSPrefixDefault
+	}
+
 	if err := g.GUI.Init(); err != nil {
 		return err
 	}
@@ -56,9 +65,9 @@ func (g *GTKTTSAlerter) Cleanup() error {
 func (g *GTKTTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	// If a message has the no TTS prefix, it should not be read out loud.
 	shouldReadMsg := true
-	if strings.HasPrefix(e.Message, noTTSPrefix) {
+	if strings.HasPrefix(e.Message, g.noTTSPrefix) {
 		shouldReadMsg = false
-		e.Message = e.Message[len(noTTSPrefix):]
+		e.Message = e.Message[len(g.noTTSPrefix):]
 		g.log.Println("Detected No TTS flag; skipping alert read-out.")
 	}
 
