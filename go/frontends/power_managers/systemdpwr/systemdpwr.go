@@ -39,3 +39,7 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
+
+func (s *SystemdPowerManager) Init() error { return nil }
+
+func (s *SystemdPowerManager) Cleanup() error { return nil }
