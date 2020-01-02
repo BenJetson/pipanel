@@ -15,8 +15,8 @@ import (
 // touch display, includes GTK/TTS alerts, and systemd power management.
 func NewPiPanelGTK(log *log.Logger) *pipanel.Frontend {
 	return &pipanel.Frontend{
-		Alerter:        gtkttsalerter.New(log, "/tmp/alert-tts/", "en"),
-		AudioPlayer:    beeper.New(log, "/tmp/pipanel-sounds/"),
+		Alerter:        gtkttsalerter.New(log),
+		AudioPlayer:    beeper.New(log),
 		DisplayManager: pitouch.New(log),
 		PowerManager:   systemdpwr.New(log),
 	}

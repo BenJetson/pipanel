@@ -19,10 +19,10 @@ type GTKTTSAlerter struct {
 	log *log.Logger
 }
 
-func New(log *log.Logger, tmpDir, language string) *GTKTTSAlerter {
+func New(log *log.Logger) *GTKTTSAlerter {
 	return &GTKTTSAlerter{
 		GUI:        gtkalerter.New(log),
-		TTSAlerter: ttsalerter.New(log, tmpDir, language),
+		TTSAlerter: ttsalerter.New(log),
 		log:        log,
 	}
 }
