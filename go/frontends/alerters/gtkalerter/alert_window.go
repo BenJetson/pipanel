@@ -154,8 +154,20 @@ func (w *alertWindow) Deactivate() { w.inactive = true }
 
 func (w *alertWindow) Destroy() {
 	if !w.inactive {
+		// Destroy the window.
 		w.Deactivate()
 		w.window.Destroy()
+
+		// Clear pointers to components so the garbage collector will pick them
+		// up and deallocate the (now unreferenced) objects.
+		w.window = nil
+		w.headerBar = nil
+		w.topLayout = nil
+		w.boxLayout = nil
+		w.dismissBtn = nil
+		w.progress = nil
+		w.label = nil
+		w.icon = nil
 	}
 }
 
