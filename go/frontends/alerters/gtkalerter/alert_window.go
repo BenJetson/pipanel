@@ -153,8 +153,10 @@ func (w *alertWindow) ShowAll() {
 }
 
 func (w *alertWindow) Deactivate() {
-	w.inactive = true
-	w.Cleanup()
+	if !w.inactive {
+		w.inactive = true
+		w.Cleanup()
+	}
 }
 
 func (w *alertWindow) Destroy() {
