@@ -1,8 +1,10 @@
 package gtkalerter
 
 import (
-	"errors"
+	"fmt"
 	"time"
+
+	"github.com/gotk3/gotk3/pango"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
@@ -12,9 +14,10 @@ import (
 )
 
 type alertWindow struct {
-	builder    *gtk.Builder
 	window     *gtk.Window
 	headerBar  *gtk.HeaderBar
+	topLayout  *gtk.Box
+	boxLayout  *gtk.Box
 	dismissBtn *gtk.Button
 	progress   *gtk.ProgressBar
 	label      *gtk.Label
@@ -25,71 +28,93 @@ type alertWindow struct {
 
 func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 	var w alertWindow
-	var object glib.IObject
 	var err error
-	var ok bool
 
 	w.timestamp = time.Now()
 
-	// Read in the view layout from the Glade file.
-	// TODO: Fix this so that it is directory agnostic.
-	if w.builder, err = gtk.BuilderNewFromFile("glade/alert_window.glade"); err != nil {
+	// Create the window.
+	if w.window, err = gtk.WindowNew(gtk.WINDOW_TOPLEVEL); err != nil {
 		return nil, err
 	}
 
-	// Attempt to fetch the window.
-	if object, err = w.builder.GetObject("AlertWindow"); err != nil {
+	w.window.SetPosition(gtk.WIN_POS_CENTER_ALWAYS)
+	w.window.SetDecorated(false)
+	w.window.SetSizeRequest(450, 300)
+
+	// Create the headerbar.
+	if w.headerBar, err = gtk.HeaderBarNew(); err != nil {
 		return nil, err
 	}
 
-	if w.window, ok = object.(*gtk.Window); !ok {
-		return nil, errors.New("object ought to of been a window")
-	}
+	w.headerBar.SetHasSubtitle(true)
+	w.headerBar.SetShowCloseButton(false)
+	w.headerBar.SetTitle("Alert")
 
-	// Attempt to fetch the headerbar.
-	if object, err = w.builder.GetObject("HeaderBar"); err != nil {
+	// Create the progress bar.
+	if w.progress, err = gtk.ProgressBarNew(); err != nil {
 		return nil, err
 	}
 
-	if w.headerBar, ok = object.(*gtk.HeaderBar); !ok {
-		return nil, errors.New("object ought to of been a headerbar")
-	}
+	w.progress.SetFraction(1.0)
+	w.progress.SetPulseStep(0.05)
 
-	// Attempt to fetch the progress bar.
-	if object, err = w.builder.GetObject("AlertProgress"); err != nil {
+	// Create the message label.
+	if w.label, err = gtk.LabelNew("Message"); err != nil {
 		return nil, err
 	}
 
-	if w.progress, ok = object.(*gtk.ProgressBar); !ok {
-		return nil, errors.New("object ought to of been a progress bar")
-	}
+	w.label.SetSelectable(false)
+	w.label.SetJustify(gtk.JUSTIFY_CENTER)
+	w.label.SetLineWrap(true)
+	w.label.SetLineWrapMode(pango.WRAP_WORD)
 
-	// Attempt to fetch the label.
-	if object, err = w.builder.GetObject("AlertText"); err != nil {
+	// Create the icon.
+	if w.icon, err = gtk.ImageNewFromIconName(a.Icon, gtk.ICON_SIZE_DIALOG); err != nil {
 		return nil, err
 	}
 
-	if w.label, ok = object.(*gtk.Label); !ok {
-		return nil, errors.New("object ought to of been a label")
-	}
+	w.icon.SetPixelSize(128)
 
-	// Attempt to fetch the icon.
-	if object, err = w.builder.GetObject("AlertIcon"); err != nil {
+	// Create the dismiss button.
+	if w.dismissBtn, err = gtk.ButtonNewWithLabel("Acknowledge"); err != nil {
 		return nil, err
 	}
 
-	if w.icon, ok = object.(*gtk.Image); !ok {
-		return nil, errors.New("object ought to of been an image")
-	}
-
-	// Attempt to fetch the dismiss button.
-	if object, err = w.builder.GetObject("DismissButton"); err != nil {
+	var ackIcon *gtk.Image
+	if ackIcon, err = gtk.ImageNewFromIconName("gtk-yes", gtk.ICON_SIZE_BUTTON); err != nil {
 		return nil, err
 	}
 
-	if w.dismissBtn, ok = object.(*gtk.Button); !ok {
-		return nil, errors.New("object ought to of been a button")
+	w.dismissBtn.SetImage(ackIcon)
+	w.dismissBtn.SetAlwaysShowImage(true)
+
+	// Create the layouts.
+	if w.boxLayout, err = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5); err != nil {
+		return nil, err
 	}
+
+	w.boxLayout.SetMarginStart(15)
+	w.boxLayout.SetMarginEnd(15)
+	w.boxLayout.SetMarginBottom(15)
+
+	if w.topLayout, err = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0); err != nil {
+		return nil, err
+	}
+
+	w.topLayout.SetHomogeneous(false)
+
+	// Add dismiss button to headerbar.
+	w.headerBar.PackStart(w.dismissBtn)
+
+	// Add widgets to the box layout.
+	w.boxLayout.PackStart(w.icon, false, true, 24)
+	w.boxLayout.PackStart(w.progress, false, true, 4)
+	w.boxLayout.PackStart(w.label, true, true, 0)
+
+	// Combine layouts and add to the window.
+	w.topLayout.Add(w.headerBar)
+	w.topLayout.Add(w.boxLayout)
+	w.window.Add(w.topLayout)
 
 	// Update the timestamp of this window once per second.
 	w.updateSubtitle()
@@ -103,7 +128,6 @@ func newAlertWindow(a pipanel.AlertEvent) (*alertWindow, error) {
 	})
 
 	// Fill in the values from the Alert event.
-	w.setIcon(a.Icon)
 	w.setText(a.Message)
 	if !a.Perpetual {
 		w.setTimeout(time.Millisecond * a.Timeout)
@@ -135,9 +159,9 @@ func (w *alertWindow) Destroy() {
 	}
 }
 
-func (w *alertWindow) setIcon(iconName string) { w.icon.SetFromIconName(iconName, gtk.ICON_SIZE_DIALOG) }
-
-func (w *alertWindow) setText(text string) { w.label.SetText(text) }
+func (w *alertWindow) setText(text string) {
+	w.label.SetMarkup(fmt.Sprintf(`<span size='36000'>%s</span>`, text))
+}
 
 func (w *alertWindow) setTimeout(d time.Duration) {
 	expiryTime := w.timestamp.Add(d)
