@@ -2,9 +2,18 @@ package ttsalerter
 
 import (
 	"log"
+	"os"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	htgotts "github.com/hegedustibor/htgo-tts"
+)
+
+const (
+	tmpDirKey     string = "PIPANEL_TTS_TMP_DIR"
+	tmpDirDefault string = "/tmp/pipanel-tts/"
+
+	languageKey     string = "PIPANEL_TTS_LANGUAGE"
+	languageDefault string = "en"
 )
 
 // TTSAlerter is an implementation of pipanel.Alerter that reads alerts
@@ -14,16 +23,9 @@ type TTSAlerter struct {
 	speech *htgotts.Speech
 }
 
-// New creates a TTSAlerter instance given the logger to use, path to a suitable
-// temporary directory for audio clips, and the TTS language.
-func New(log *log.Logger, tmpDir, language string) *TTSAlerter {
-	return &TTSAlerter{
-		log: log,
-		speech: &htgotts.Speech{
-			Folder:   tmpDir,
-			Language: language,
-		},
-	}
+// New creates a TTSAlerter instance given the logger to use.
+func New(log *log.Logger) *TTSAlerter {
+	return &TTSAlerter{log: log}
 }
 
 // ShowAlert will handle pipanel alert events by reading the alert message
@@ -36,6 +38,21 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 }
 
 func (t *TTSAlerter) Init() error {
+	tmpDir := os.Getenv(tmpDirKey)
+	if len(tmpDir) < 1 {
+		tmpDir = tmpDirDefault
+	}
+
+	language := os.Getenv(languageKey)
+	if len(language) < 1 {
+		language = languageDefault
+	}
+
+	t.speech = &htgotts.Speech{
+		Folder:   tmpDir,
+		Language: language,
+	}
+
 	return nil
 }
 
