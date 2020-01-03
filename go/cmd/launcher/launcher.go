@@ -51,7 +51,7 @@ func RunApplication(frontend *pipanel.Frontend) {
 
 	// Create cleanup function for use upon interrupt/shutdown.
 	cleanup := func() {
-		if err := server.Shutdown(context.TODO()); err != nil {
+		if err := server.Shutdown(context.Background()); err != nil {
 			panic(err)
 		}
 
