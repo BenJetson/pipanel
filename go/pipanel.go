@@ -1,13 +1,16 @@
 package pipanel
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 // InitCleaner allows PiPanel components to perform actions prior to their first
 // usage or the final teardown.
 type InitCleaner interface {
 	// Init performs any necessary setup that needs to be done prior to starting
-	// a PiPanel component.
-	Init() error
+	// a PiPanel component and sets the logger instance to be used.
+	Init(log *log.Logger) error
 	// Cleanup performs any necessary cleanup and teardown that needs to be done
 	// prior to halting a PiPanel component.
 	Cleanup() error
@@ -51,33 +54,33 @@ type Frontend struct {
 }
 
 // Init initializes all components of the Frontend.
-func (f *Frontend) Init() error {
+func (f *Frontend) Init(log *log.Logger) error {
 	if f.InitCleaner != nil {
-		if err := f.InitCleaner.Init(); err != nil {
+		if err := f.InitCleaner.Init(log); err != nil {
 			return err
 		}
 	}
 
 	if f.Alerter != nil {
-		if err := f.Alerter.Init(); err != nil {
+		if err := f.Alerter.Init(log); err != nil {
 			return err
 		}
 	}
 
 	if f.AudioPlayer != nil {
-		if err := f.AudioPlayer.Init(); err != nil {
+		if err := f.AudioPlayer.Init(log); err != nil {
 			return err
 		}
 	}
 
 	if f.PowerManager != nil {
-		if err := f.PowerManager.Init(); err != nil {
+		if err := f.PowerManager.Init(log); err != nil {
 			return err
 		}
 	}
 
 	if f.DisplayManager != nil {
-		if err := f.DisplayManager.Init(); err != nil {
+		if err := f.DisplayManager.Init(log); err != nil {
 			return err
 		}
 	}
