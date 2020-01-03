@@ -19,6 +19,7 @@ func RunApplication(frontend *pipanel.Frontend) {
 	// Create log instances.
 	logServer := log.New(os.Stdout, "server ", log.LstdFlags)
 	logFrontend := log.New(os.Stdout, "frontend ", log.LstdFlags)
+	logMain := log.New(os.Stdout, "main ", log.LstdFlags)
 
 	// Create signaling channels for concurrent operations.
 	interrupt := make(chan os.Signal, 1)
@@ -28,11 +29,13 @@ func RunApplication(frontend *pipanel.Frontend) {
 	signal.Notify(interrupt, os.Interrupt)
 
 	// Initialize frontend.
+	logMain.Println("Initializing frontend...")
 	if err := frontend.Init(logFrontend); err != nil {
 		panic(err)
 	}
 
 	// Determine server port.
+	logMain.Print("Fetching server port from environment... ")
 	portStr := os.Getenv(serverPortKey)
 	if len(portStr) < 1 {
 		portStr = serverPortDefault
@@ -44,29 +47,36 @@ func RunApplication(frontend *pipanel.Frontend) {
 		panic(err)
 	}
 
+	logMain.Printf("Will use port %d.\n", port)
+
 	// Start the server.
+	logMain.Println("Starting the server...")
 	server := server.New(logServer, port, frontend)
 
 	go server.ListenAndServe(shutdown)
 
 	// Create cleanup function for use upon interrupt/shutdown.
-	cleanup := func() {
+	cleanup := func(reason string) {
+		logMain.Printf("Terminating: %s\n", reason)
+
+		logMain.Println("Shutting down the server...")
 		if err := server.Shutdown(context.Background()); err != nil {
 			panic(err)
 		}
 
+		logMain.Println("Clearing frontend resources...")
 		if err := frontend.Cleanup(); err != nil {
 			panic(err)
 		}
 	}
 
+	logMain.Println("Ready to receive events.")
+
 	// Wait for all goroutines to shut down.
 	select {
 	case <-interrupt:
-		fmt.Println("sigint detected")
-		cleanup()
+		cleanup("sigint detected")
 	case <-shutdown:
-		fmt.Println("server shutdown detected")
-		cleanup()
+		cleanup("server shutdown detected")
 	}
 }
