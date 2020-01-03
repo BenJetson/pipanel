@@ -6,10 +6,14 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/BenJetson/pipanel/go/server"
 )
+
+const serverPortKey string = "PIPANEL_SERVER_PORT"
+const serverPortDefault string = "1035"
 
 func RunApplication(frontend *pipanel.Frontend) {
 	// Create log instances.
@@ -28,8 +32,20 @@ func RunApplication(frontend *pipanel.Frontend) {
 		panic(err)
 	}
 
+	// Determine server port.
+	portStr := os.Getenv(serverPortKey)
+	if len(portStr) < 1 {
+		portStr = serverPortDefault
+	}
+
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		err = fmt.Errorf("value of %s is not a valid numeral", serverPortKey)
+		panic(err)
+	}
+
 	// Start the server.
-	server := server.New(logServer, 1035, frontend)
+	server := server.New(logServer, port, frontend)
 
 	go server.ListenAndServe(shutdown)
 
