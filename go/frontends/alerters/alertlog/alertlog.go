@@ -10,9 +10,7 @@ type AlertLog struct {
 	log *log.Logger
 }
 
-func New(log *log.Logger) *AlertLog {
-	return &AlertLog{log}
-}
+func New() *AlertLog { return &AlertLog{} }
 
 func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
 	a.log.Printf(
@@ -26,7 +24,8 @@ func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
 	return nil
 }
 
-func (a *AlertLog) Init() error {
+func (a *AlertLog) Init(log *log.Logger) error {
+	a.log = log
 	return nil
 }
 

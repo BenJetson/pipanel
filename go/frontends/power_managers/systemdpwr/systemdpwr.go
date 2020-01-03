@@ -15,9 +15,7 @@ type SystemdPowerManager struct {
 }
 
 // New creates a SystemdPowerManager instance.
-func New(log *log.Logger) *SystemdPowerManager {
-	return &SystemdPowerManager{log}
-}
+func New() *SystemdPowerManager { return &SystemdPowerManager{} }
 
 // DoPowerAction handles pipanel power events.
 func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
@@ -36,6 +34,9 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
 
-func (s *SystemdPowerManager) Init() error { return nil }
+func (s *SystemdPowerManager) Init(log *log.Logger) error {
+	s.log = log
+	return nil
+}
 
 func (s *SystemdPowerManager) Cleanup() error { return nil }

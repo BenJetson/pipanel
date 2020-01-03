@@ -18,9 +18,7 @@ type TouchDisplayManager struct {
 }
 
 // New creates a TouchDisplayManager instance.
-func New(log *log.Logger) *TouchDisplayManager {
-	return &TouchDisplayManager{log}
-}
+func New() *TouchDisplayManager { return &TouchDisplayManager{} }
 
 // SetBrightness handles pipanel brightness events.
 func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
@@ -41,8 +39,9 @@ func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
 	return f.Close()
 }
 
-func (t *TouchDisplayManager) Init() error {
+func (t *TouchDisplayManager) Init(log *log.Logger) error {
 	// TODO might be a good idea to set a default brightness in here.
+	t.log = log
 	return nil
 }
 

@@ -10,9 +10,7 @@ type PowerLog struct {
 	log *log.Logger
 }
 
-func New(log *log.Logger) *PowerLog {
-	return &PowerLog{log}
-}
+func New() *PowerLog { return &PowerLog{} }
 
 func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
 	p.log.Printf(
@@ -23,7 +21,8 @@ func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
 	return nil
 }
 
-func (p *PowerLog) Init() error {
+func (p *PowerLog) Init(log *log.Logger) error {
+	p.log = log
 	return nil
 }
 

@@ -22,26 +22,27 @@ type GTKTTSAlerter struct {
 	noTTSPrefix string
 }
 
-func New(log *log.Logger) *GTKTTSAlerter {
+func New() *GTKTTSAlerter {
 	return &GTKTTSAlerter{
-		GUI:        gtkalerter.New(log),
-		TTSAlerter: ttsalerter.New(log),
-		log:        log,
+		GUI:        gtkalerter.New(),
+		TTSAlerter: ttsalerter.New(),
 	}
 }
 
-func (g *GTKTTSAlerter) Init() error {
+func (g *GTKTTSAlerter) Init(log *log.Logger) error {
+	g.log = log
+
 	// Fetch NoTTS prefix from environment.
 	g.noTTSPrefix = os.Getenv(noTTSPrefixKey)
 	if len(g.noTTSPrefix) < 1 {
 		g.noTTSPrefix = noTTSPrefixDefault
 	}
 
-	if err := g.GUI.Init(); err != nil {
+	if err := g.GUI.Init(log); err != nil {
 		return err
 	}
 
-	if err := g.TTSAlerter.Init(); err != nil {
+	if err := g.TTSAlerter.Init(log); err != nil {
 		return err
 	}
 

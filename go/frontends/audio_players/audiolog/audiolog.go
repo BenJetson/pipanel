@@ -10,9 +10,7 @@ type AudioLog struct {
 	log *log.Logger
 }
 
-func New(log *log.Logger) *AudioLog {
-	return &AudioLog{log}
-}
+func New() *AudioLog { return &AudioLog{} }
 
 func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
 	a.log.Printf(
@@ -23,7 +21,8 @@ func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
 	return nil
 }
 
-func (a *AudioLog) Init() error {
+func (a *AudioLog) Init(log *log.Logger) error {
+	a.log = log
 	return nil
 }
 

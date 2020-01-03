@@ -14,11 +14,7 @@ type GUI struct {
 	windows []*alertWindow
 }
 
-func New(l *log.Logger) *GUI {
-	return &GUI{
-		log: l,
-	}
-}
+func New() *GUI { return &GUI{} }
 
 func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	_, err := glib.IdleAdd(func() {
@@ -37,7 +33,9 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	return err
 }
 
-func (g *GUI) Init() error {
+func (g *GUI) Init(log *log.Logger) error {
+	g.log = log
+
 	gtk.Init(nil)
 	go gtk.Main()
 

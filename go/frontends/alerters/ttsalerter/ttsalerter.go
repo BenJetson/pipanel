@@ -23,10 +23,8 @@ type TTSAlerter struct {
 	speech *htgotts.Speech
 }
 
-// New creates a TTSAlerter instance given the logger to use.
-func New(log *log.Logger) *TTSAlerter {
-	return &TTSAlerter{log: log}
-}
+// New creates a TTSAlerter instance.
+func New() *TTSAlerter { return &TTSAlerter{} }
 
 // ShowAlert will handle pipanel alert events by reading the alert message
 // out loud to the user.
@@ -37,7 +35,9 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	return nil
 }
 
-func (t *TTSAlerter) Init() error {
+func (t *TTSAlerter) Init(log *log.Logger) error {
+	t.log = log
+
 	tmpDir := os.Getenv(tmpDirKey)
 	if len(tmpDir) < 1 {
 		tmpDir = tmpDirDefault

@@ -10,9 +10,7 @@ type DisplayLog struct {
 	log *log.Logger
 }
 
-func New(log *log.Logger) *DisplayLog {
-	return &DisplayLog{log}
-}
+func New() *DisplayLog { return &DisplayLog{} }
 
 func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
 	d.log.Printf(
@@ -23,7 +21,8 @@ func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
 	return nil
 }
 
-func (d *DisplayLog) Init() error {
+func (d *DisplayLog) Init(log *log.Logger) error {
+	d.log = log
 	return nil
 }
 

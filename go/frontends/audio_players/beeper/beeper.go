@@ -30,9 +30,7 @@ type Beeper struct {
 }
 
 // New creates a Beeper instance.
-func New(log *log.Logger) *Beeper {
-	return &Beeper{log: log}
-}
+func New() *Beeper { return &Beeper{} }
 
 func validateAudioFilename(fileName string) error {
 	// Checks to make sure that only one period exists in the file name.
@@ -77,7 +75,9 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	return nil
 }
 
-func (b *Beeper) Init() error {
+func (b *Beeper) Init(log *log.Logger) error {
+	b.log = log
+
 	// Fetch the library path from the environment. If unset, throw an error.
 	libraryPath := os.Getenv(libraryPathKey)
 
