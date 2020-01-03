@@ -24,7 +24,7 @@ func RunApplication(frontend *pipanel.Frontend) {
 	signal.Notify(interrupt, os.Interrupt)
 
 	// Initialize frontend.
-	if err := frontend.Init(); err != nil {
+	if err := frontend.Init(logFrontend); err != nil {
 		panic(err)
 	}
 
