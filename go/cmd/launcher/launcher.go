@@ -58,7 +58,7 @@ func loadConfig(log *log.Logger) *pipanel.Config {
 	flag.Parse()
 
 	// Load config from disk.
-	log.Main("Loading configuration from disk.")
+	log.Println("Loading configuration from disk.")
 	file, err := os.Open(cfgPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration file at path '%s'.\n", cfgPath)
@@ -76,7 +76,7 @@ func loadConfig(log *log.Logger) *pipanel.Config {
 
 	// If a port is specified at the shell prompt, overwrite the config.
 	if port != -1 {
-		log.Main("Port flag set: overriding configuration file preference.")
+		log.Println("Port flag set: overriding configuration file preference.")
 		cfg.Server.Port = port
 	}
 
