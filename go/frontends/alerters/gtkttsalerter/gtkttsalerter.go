@@ -1,6 +1,7 @@
 package gtkttsalerter
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"strings"

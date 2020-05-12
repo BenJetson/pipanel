@@ -1,6 +1,7 @@
 package powerlog
 
 import (
+	"encoding/json"
 	"log"
 
 	pipanel "github.com/BenJetson/pipanel/go"

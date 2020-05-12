@@ -1,6 +1,7 @@
 package pitouch
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"os"

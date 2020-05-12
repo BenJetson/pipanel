@@ -1,6 +1,7 @@
 package gtkalerter
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/gotk3/gotk3/glib"
