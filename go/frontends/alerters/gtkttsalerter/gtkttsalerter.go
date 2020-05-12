@@ -39,11 +39,11 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, cfg json.RawMessage) error {
 		g.noTTSPrefix = noTTSPrefixDefault
 	}
 
-	if err := g.GUI.Init(log, config); err != nil {
+	if err := g.GUI.Init(log, cfg); err != nil {
 		return err
 	}
 
-	if err := g.TTSAlerter.Init(log, config); err != nil {
+	if err := g.TTSAlerter.Init(log, cfg); err != nil {
 		return err
 	}
 
