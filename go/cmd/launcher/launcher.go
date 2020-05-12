@@ -86,7 +86,7 @@ func loadConfig(log *log.Logger) *pipanel.Config {
 	return &cfg
 }
 
-func Main() {
+func main() {
 	// Create log instances.
 	logServer := log.New(os.Stdout, "server ", log.LstdFlags)
 	logFrontend := log.New(os.Stdout, "frontend ", log.LstdFlags)
