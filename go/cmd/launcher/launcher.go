@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -34,10 +33,9 @@ var frontendRegister = map[string]func() *pipanel.Frontend{
 }
 
 func checkConfig(log *log.Logger, cfg *pipanel.Config) {
-	switch cfg.Server.Port {
-	case < 0:
+	if cfg.Server.Port < 0 {
 		log.Fatalln("Port number cannot be negative.")
-	case < 1024:
+	} else if cfg.Server.Port < 1024 {
 		log.Fatalln("Port numbers 0-1023 are reserved by the system.")
 	}
 
