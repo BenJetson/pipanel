@@ -14,7 +14,7 @@ type InitCleaner interface {
 	// The raw JSON from the configuration file for this component is provided.
 	// Implementors may decode this config object into the appropriate format
 	// for their component.
-	Init(log *log.Logger, config json.RawMessage) error
+	Init(log *log.Logger, cfg json.RawMessage) error
 	// Cleanup performs any necessary cleanup and teardown that needs to be done
 	// prior to halting a PiPanel component.
 	Cleanup() error

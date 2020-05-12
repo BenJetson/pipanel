@@ -30,7 +30,7 @@ func New() *GTKTTSAlerter {
 	}
 }
 
-func (g *GTKTTSAlerter) Init(log *log.Logger, config json.RawMessage) error {
+func (g *GTKTTSAlerter) Init(log *log.Logger, cfg json.RawMessage) error {
 	g.log = log
 
 	// Fetch NoTTS prefix from environment.

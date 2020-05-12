@@ -81,7 +81,7 @@ func loadConfig(log *log.Logger) *pipanel.Config {
 	}
 
 	// Validate the configuration.
-	checkConfig(log, cfg)
+	checkConfig(log, &cfg)
 
 	return &cfg
 }
@@ -106,7 +106,7 @@ func Main() {
 	logMain.Println("Initializing frontend...")
 	frontend := frontendRegister[cfg.Frontend.Name]()
 
-	err := frontend.Init(logFrontend, cfg.Frontend)
+	err := frontend.Init(logFrontend, &cfg.Frontend)
 	if err != nil {
 		panic(err)
 	}
