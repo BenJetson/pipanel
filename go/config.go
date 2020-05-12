@@ -10,7 +10,7 @@ type ServerConfig struct {
 // FrontendConfig contains configuration for each of the frontend compoments.
 type FrontendConfig struct {
 	// Name is the name of the desired frontend implementation.
-	Name string `json:"frontend"`
+	Name string `json:"name"`
 	// AlerterConfig is the raw JSON object that will be passed to the chosen
 	// Alerter implementation upon instantiation.
 	AlerterConfig json.RawMessage `json:"alerter,omitempty"`
