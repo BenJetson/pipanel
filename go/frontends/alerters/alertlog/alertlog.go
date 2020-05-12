@@ -24,7 +24,7 @@ func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
 	return nil
 }
 
-func (a *AlertLog) Init(log *log.Logger) error {
+func (a *AlertLog) Init(log *log.Logger, _ json.RawMessage) error {
 	a.log = log
 	return nil
 }

@@ -1,6 +1,7 @@
 package ttsalerter
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
@@ -35,7 +36,7 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	return nil
 }
 
-func (t *TTSAlerter) Init(log *log.Logger) error {
+func (t *TTSAlerter) Init(log *log.Logger, _ json.RawMessage) error {
 	t.log = log
 
 	tmpDir := os.Getenv(tmpDirKey)

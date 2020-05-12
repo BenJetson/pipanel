@@ -21,7 +21,7 @@ func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
 	return nil
 }
 
-func (p *PowerLog) Init(log *log.Logger) error {
+func (p *PowerLog) Init(log *log.Logger, _ json.RawMessage) error {
 	p.log = log
 	return nil
 }

@@ -33,7 +33,7 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	return err
 }
 
-func (g *GUI) Init(log *log.Logger) error {
+func (g *GUI) Init(log *log.Logger, _ json.RawMessage) error {
 	g.log = log
 
 	gtk.Init(nil)

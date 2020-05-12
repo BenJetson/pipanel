@@ -75,7 +75,7 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	return nil
 }
 
-func (b *Beeper) Init(log *log.Logger) error {
+func (b *Beeper) Init(log *log.Logger, _ json.RawMessage) error {
 	b.log = log
 
 	// Fetch the library path from the environment. If unset, throw an error.

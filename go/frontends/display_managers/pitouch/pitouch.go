@@ -39,7 +39,7 @@ func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
 	return f.Close()
 }
 
-func (t *TouchDisplayManager) Init(log *log.Logger) error {
+func (t *TouchDisplayManager) Init(log *log.Logger, _ json.RawMessage) error {
 	// TODO might be a good idea to set a default brightness in here.
 	t.log = log
 	return nil

@@ -29,7 +29,7 @@ func New() *GTKTTSAlerter {
 	}
 }
 
-func (g *GTKTTSAlerter) Init(log *log.Logger) error {
+func (g *GTKTTSAlerter) Init(log *log.Logger, config json.RawMessage) error {
 	g.log = log
 
 	// Fetch NoTTS prefix from environment.
@@ -38,11 +38,11 @@ func (g *GTKTTSAlerter) Init(log *log.Logger) error {
 		g.noTTSPrefix = noTTSPrefixDefault
 	}
 
-	if err := g.GUI.Init(log); err != nil {
+	if err := g.GUI.Init(log, config); err != nil {
 		return err
 	}
 
-	if err := g.TTSAlerter.Init(log); err != nil {
+	if err := g.TTSAlerter.Init(log, config); err != nil {
 		return err
 	}
 

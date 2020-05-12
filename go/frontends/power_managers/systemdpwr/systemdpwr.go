@@ -1,6 +1,7 @@
 package systemdpwr
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
@@ -34,7 +35,7 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
 
-func (s *SystemdPowerManager) Init(log *log.Logger) error {
+func (s *SystemdPowerManager) Init(log *log.Logger, _ json.RawMessage) error {
 	s.log = log
 	return nil
 }
