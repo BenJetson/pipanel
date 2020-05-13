@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"log"
 
-	pipanel "github.com/BenJetson/pipanel/go"
 	htgotts "github.com/hegedustibor/htgo-tts"
+
+	pipanel "github.com/BenJetson/pipanel/go"
 )
 
 const (
