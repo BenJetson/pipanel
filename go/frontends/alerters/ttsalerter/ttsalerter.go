@@ -61,6 +61,8 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	return nil
 }
 
+// Init initializes this TTSAlerter, loading the configuration from the
+// provided JSON.
 func (t *TTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	t.log = log
 
@@ -84,6 +86,5 @@ func (t *TTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	return nil
 }
 
-func (t *TTSAlerter) Cleanup() error {
-	return nil
-}
+// Cleanup tears down this TTSAlerter.
+func (t *TTSAlerter) Cleanup() error { return nil }

@@ -9,12 +9,15 @@ import (
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
+// Server provides a webserver that is capable of receiving and handling
+// the PiPanel events.
 type Server struct {
 	log      *log.Logger
 	frontend *pipanel.Frontend
 	httpd    *http.Server
 }
 
+// New creates a new Server instance, binding to the given port and frontend.
 func New(l *log.Logger, port int, frontend *pipanel.Frontend) *Server {
 	// Create a multiplexer for routing requests.
 	mux := http.NewServeMux()
@@ -39,6 +42,10 @@ func New(l *log.Logger, port int, frontend *pipanel.Frontend) *Server {
 	return &s
 }
 
+// ListenAndServe instructs the server to bind to the configured port and
+// listen for requests to handle. Will block until the server terminates.
+// Upon termination, this function will close the channel given by the
+// parameter, allowing for this server to run in a separate goroutine.
 func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 	defer close(closeOnReturn)
 
@@ -53,6 +60,7 @@ func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 	s.log.Println("Server has gracefully stopped.")
 }
 
+// Shutdown tears down this Server and releases its resources.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpd.Shutdown(ctx)
 }

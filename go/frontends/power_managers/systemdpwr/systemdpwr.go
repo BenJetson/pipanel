@@ -35,9 +35,11 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
 
+// Init initializes this SystemdPowerManager by setting the logger.
 func (s *SystemdPowerManager) Init(log *log.Logger, _ json.RawMessage) error {
 	s.log = log
 	return nil
 }
 
+// Cleanup tears down this SystemdPowerManager.
 func (s *SystemdPowerManager) Cleanup() error { return nil }
