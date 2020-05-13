@@ -204,7 +204,7 @@ func (w *alertWindow) setText(text string) {
 func (w *alertWindow) setTimeout(d time.Duration) error {
 	expiryTime := w.timestamp.Add(d)
 
-	return glib.TimeoutAdd(33, func() bool {
+	_, err := glib.TimeoutAdd(33, func() bool {
 		if w.inactive {
 			return false
 		}
@@ -221,10 +221,12 @@ func (w *alertWindow) setTimeout(d time.Duration) error {
 
 		return true
 	})
+
+	return err
 }
 
 func (w *alertWindow) pulseProgress() error {
-	return glib.TimeoutAdd(80, func() bool {
+	_, err := glib.TimeoutAdd(80, func() bool {
 		if w.inactive {
 			return false
 		}
@@ -233,4 +235,6 @@ func (w *alertWindow) pulseProgress() error {
 
 		return true
 	})
+
+	return err
 }
