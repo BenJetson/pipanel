@@ -1,6 +1,7 @@
 package audiolog
 
 import (
+	"encoding/json"
 	"log"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -21,7 +22,7 @@ func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
 	return nil
 }
 
-func (a *AudioLog) Init(log *log.Logger) error {
+func (a *AudioLog) Init(log *log.Logger, _ json.RawMessage) error {
 	a.log = log
 	return nil
 }

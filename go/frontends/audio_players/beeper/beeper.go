@@ -1,6 +1,8 @@
 package beeper
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -14,7 +16,12 @@ import (
 	"github.com/faiface/beep/wav"
 )
 
-const libraryPathKey string = "PIPANEL_AUDIO_LIBRARY_PATH"
+// Config is the structure for Beeper configuration.
+type Config struct {
+	// LibraryPath is the absolute path to the directory storing the audio files
+	// to be played by Beeper.
+	LibraryPath string `json:"library_path"`
+}
 
 // SampleRate is the sample rate of the beep/speaker. Defaults to 16 kHz.
 // If the sample rate of the beep/speaker is different, change the value to
@@ -25,8 +32,8 @@ var SampleRate beep.SampleRate = 16000
 // library directory specified. Sound events are expected to omit the .wav file
 // extension from the Sound field.
 type Beeper struct {
-	log         *log.Logger
-	libraryPath string
+	log *log.Logger
+	cfg Config
 }
 
 // New creates a Beeper instance.
@@ -49,7 +56,7 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 		return nil
 	}
 
-	pathToFile := b.libraryPath + e.Sound + ".wav"
+	pathToFile := b.cfg.LibraryPath + e.Sound + ".wav"
 
 	f, err := os.Open(pathToFile)
 
@@ -75,36 +82,37 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	return nil
 }
 
-func (b *Beeper) Init(log *log.Logger) error {
+func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	b.log = log
 
-	// Fetch the library path from the environment. If unset, throw an error.
-	libraryPath := os.Getenv(libraryPathKey)
+	// Decode config structure.
+	d := json.NewDecoder(bytes.NewReader(rawCfg))
+	d.DisallowUnknownFields()
 
-	if len(libraryPath) < 1 {
-		return fmt.Errorf("must set %s environment variable", libraryPathKey)
-	}
-
-	// Enforce trailing slash, which makes concatenation with filenames easier.
-	if libraryPath[len(libraryPath)-1] != '/' {
-		libraryPath += "/"
-	}
-
-	// Check to make sure that the directory actually exists; panic otherwise.
-	d, err := os.Open(libraryPath)
-
-	if os.IsNotExist(err) {
-		err = fmt.Errorf("directory specified by %s not found", libraryPathKey)
-	}
-
-	if err != nil {
+	if err := d.Decode(&(b.cfg)); err != nil {
 		return err
 	}
 
-	// Library path is valid. Save library path.
-	b.libraryPath = libraryPath
+	// Make sure library path is set.
+	if len(b.cfg.LibraryPath) < 1 {
+		return fmt.Errorf("must define an audio library path in config")
+	}
 
-	d.Close()
+	// Enforce trailing slash, which makes concatenation with filenames easier.
+	if b.cfg.LibraryPath[len(b.cfg.LibraryPath)-1] != '/' {
+		b.cfg.LibraryPath += "/"
+	}
+
+	// Check to make sure that the directory actually exists; panic otherwise.
+	dir, err := os.Open(b.cfg.LibraryPath)
+
+	if os.IsNotExist(err) {
+		err = fmt.Errorf("no such directory: %s", b.cfg.LibraryPath)
+	} else if err != nil {
+		return err
+	}
+
+	dir.Close()
 
 	return speaker.Init(SampleRate, SampleRate.N(time.Second/10))
 }

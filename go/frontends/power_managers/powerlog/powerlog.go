@@ -1,6 +1,7 @@
 package powerlog
 
 import (
+	"encoding/json"
 	"log"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -21,7 +22,7 @@ func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
 	return nil
 }
 
-func (p *PowerLog) Init(log *log.Logger) error {
+func (p *PowerLog) Init(log *log.Logger, _ json.RawMessage) error {
 	p.log = log
 	return nil
 }

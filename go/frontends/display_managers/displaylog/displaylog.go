@@ -1,6 +1,7 @@
 package displaylog
 
 import (
+	"encoding/json"
 	"log"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -21,7 +22,7 @@ func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
 	return nil
 }
 
-func (d *DisplayLog) Init(log *log.Logger) error {
+func (d *DisplayLog) Init(log *log.Logger, _ json.RawMessage) error {
 	d.log = log
 	return nil
 }
