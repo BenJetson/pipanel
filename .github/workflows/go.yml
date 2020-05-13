@@ -44,7 +44,7 @@ jobs:
       working-directory: go
 
     - name: Run golangci-lint
-      run: golangci-lint run -v --color always
+      run: golangci-lint run --color always
       working-directory: go
 
 
