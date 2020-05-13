@@ -34,6 +34,7 @@ type GTKTTSAlerter struct {
 	checkPrefix bool
 }
 
+// New creates a fresh GTKTTSAlerter instance.
 func New() *GTKTTSAlerter {
 	return &GTKTTSAlerter{
 		GUI:        gtkalerter.New(),
@@ -41,7 +42,7 @@ func New() *GTKTTSAlerter {
 	}
 }
 
-// Init initializes this GTKTTSAlerter, parsing the configuration and 
+// Init initializes this GTKTTSAlerter, parsing the configuration and
 // initializing both GTKAlerter and TTSAlerter.
 func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	g.log = log

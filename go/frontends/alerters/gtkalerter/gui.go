@@ -38,7 +38,7 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	return err
 }
 
-// Init initalizes this GUI instance, setting the logger and starting the GTK
+// Init initializes this GUI instance, setting the logger and starting the GTK
 // main event loop in a separate goroutine.
 func (g *GUI) Init(log *log.Logger, _ json.RawMessage) error {
 	g.log = log
