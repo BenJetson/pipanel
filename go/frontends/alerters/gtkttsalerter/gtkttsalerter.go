@@ -54,11 +54,11 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	g.checkPrefix = len(g.cfg.NoTTSPrefix) > 0
 
 	// Initialize GTKAlerter and TTSAlerter with their respective configs.
-	if err := g.GUI.Init(log, cfg.GTKAlerterCfg); err != nil {
+	if err := g.GUI.Init(log, g.cfg.GTKAlerterCfg); err != nil {
 		return err
 	}
 
-	if err := g.TTSAlerter.Init(log, cfg.TTSAlerterCfg); err != nil {
+	if err := g.TTSAlerter.Init(log, g.cfg.TTSAlerterCfg); err != nil {
 		return err
 	}
 
