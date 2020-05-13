@@ -11,6 +11,8 @@ import (
 	"github.com/BenJetson/pipanel/go/frontends/alerters/ttsalerter"
 )
 
+// Config specifies the options that modify the behavior of GTKAlerter,
+// TTSAlerter, and GTKTTSAlerter.
 type Config struct {
 	TTSAlerterCfg json.RawMessage `json:"tts_alerter"`
 	GTKAlerterCfg json.RawMessage `json:"gtk_alerter"`
@@ -32,6 +34,7 @@ type GTKTTSAlerter struct {
 	checkPrefix bool
 }
 
+// New creates a fresh GTKTTSAlerter instance.
 func New() *GTKTTSAlerter {
 	return &GTKTTSAlerter{
 		GUI:        gtkalerter.New(),
@@ -39,6 +42,8 @@ func New() *GTKTTSAlerter {
 	}
 }
 
+// Init initializes this GTKTTSAlerter, parsing the configuration and
+// initializing both GTKAlerter and TTSAlerter.
 func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	g.log = log
 
@@ -65,6 +70,8 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	return nil
 }
 
+// Cleanup tears down this GTKTTSAlerter instance, triggering cleanup of
+// the GTKAlerter and TTSAlerter.
 func (g *GTKTTSAlerter) Cleanup() error {
 	if err := g.GUI.Cleanup(); err != nil {
 		return err

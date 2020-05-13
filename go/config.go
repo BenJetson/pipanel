@@ -30,7 +30,7 @@ type Config struct {
 	// Server contains the configuration that will be passed to the PiPanel
 	// server upon instantiation.
 	Server ServerConfig `json:"server"`
-	// Frontend contains the configuratin that will be passed to the PiPanel
+	// Frontend contains the configuration that will be passed to the PiPanel
 	// frontend upon instantiation.
 	Frontend FrontendConfig `json:"frontend"`
 }

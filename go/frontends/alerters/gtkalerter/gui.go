@@ -10,13 +10,17 @@ import (
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
+// GUI is a GTK application that is capable of responding to PiPanel alert
+// events by showing them on the screen.
 type GUI struct {
 	log     *log.Logger
 	windows []*alertWindow
 }
 
+// New creates a fresh GUI instance.
 func New() *GUI { return &GUI{} }
 
+// ShowAlert handles alert events by displaying a window to alert the user.
 func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	_, err := glib.IdleAdd(func() {
 		w, err := newAlertWindow(e, g.removeInactiveWindows)
@@ -34,6 +38,8 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	return err
 }
 
+// Init initializes this GUI instance, setting the logger and starting the GTK
+// main event loop in a separate goroutine.
 func (g *GUI) Init(log *log.Logger, _ json.RawMessage) error {
 	g.log = log
 
@@ -59,6 +65,8 @@ func (g *GUI) removeInactiveWindows() {
 	g.log.Printf("Cleared all inactive windows: %d total.\n", count)
 }
 
+// Cleanup tears down this GUI instance, destroying all windows and halting the
+// GTK main event loop.
 func (g *GUI) Cleanup() error {
 	g.log.Println("Shutting down GUI...")
 

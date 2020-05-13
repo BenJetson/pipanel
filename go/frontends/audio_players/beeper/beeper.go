@@ -82,6 +82,8 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	return nil
 }
 
+// Init initializes this Beeper instance. Configuration will be loaded from
+// the provided JSON blob.
 func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	b.log = log
 
@@ -117,6 +119,7 @@ func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	return speaker.Init(SampleRate, SampleRate.N(time.Second/10))
 }
 
+// Cleanup tears down this Beeper.
 func (b *Beeper) Cleanup() error {
 	return nil
 }

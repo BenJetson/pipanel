@@ -27,6 +27,9 @@ type alertWindow struct {
 	afterCleanup func()
 }
 
+// newAlertWindow creates a new alert window instance. Since Glade is not used
+// for layout, this function is long as it must set up each UI element manually.
+// nolint: gocyclo
 func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, error) {
 	var w alertWindow
 	var err error
