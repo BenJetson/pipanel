@@ -107,7 +107,7 @@ func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	dir, err := os.Open(b.cfg.LibraryPath)
 
 	if os.IsNotExist(err) {
-		err = fmt.Errorf("no such directory: %s", b.cfg.LibraryPath)
+		return fmt.Errorf("no such directory: %s", b.cfg.LibraryPath)
 	} else if err != nil {
 		return err
 	}
