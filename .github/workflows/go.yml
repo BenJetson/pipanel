@@ -33,6 +33,9 @@ jobs:
     - name: Install GTK Developer Kit
       run: sudo apt-get install libgtk-3-dev libcairo2-dev libglib2.0-dev
 
+    - name: Install ALSA Libraries
+      run: sudo apt-get install libasound2-dev
+
     - name: Install golangci-lint
       run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.26.0
     
@@ -69,6 +72,9 @@ jobs:
 
     - name: Install GTK Developer Kit
       run: sudo apt-get install libgtk-3-dev libcairo2-dev libglib2.0-dev
+
+    - name: Install ALSA Libraries
+      run: sudo apt-get install libasound2-dev
 
     - name: Build
       run: go build -v ./...
