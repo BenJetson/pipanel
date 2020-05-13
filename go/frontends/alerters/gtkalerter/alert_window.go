@@ -120,7 +120,7 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 
 	// Update the timestamp of this window once per second.
 	w.updateSubtitle()
-	err = glib.TimeoutAdd(1000, func() bool {
+	_, err = glib.TimeoutAdd(1000, func() bool {
 		if w.inactive {
 			return false
 		}
