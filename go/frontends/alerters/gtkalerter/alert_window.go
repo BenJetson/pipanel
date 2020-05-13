@@ -120,7 +120,7 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 
 	// Update the timestamp of this window once per second.
 	w.updateSubtitle()
-	glib.TimeoutAdd(1000, func() bool {
+	err = glib.TimeoutAdd(1000, func() bool {
 		if w.inactive {
 			return false
 		}
@@ -128,19 +128,32 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 		w.updateSubtitle()
 		return true
 	})
+	if err != nil {
+		return err
+	}
 
 	// Fill in the values from the Alert event.
 	w.setText(a.Message)
 	if !a.Perpetual {
-		w.setTimeout(time.Millisecond * a.Timeout)
+		err = w.setTimeout(time.Millisecond * a.Timeout)
 	} else {
-		w.pulseProgress()
+		err = w.pulseProgress()
+	}
+
+	if err != nil {
+		return err
 	}
 
 	// Register events.
-	w.window.Connect("destroy", w.Deactivate)
-	w.window.Connect("delete-event", w.Deactivate)
-	w.dismissBtn.Connect("clicked", w.Destroy)
+	if _, err = w.window.Connect("destroy", w.Deactivate); err != nil {
+		return err
+	}
+	if _, err = w.window.Connect("delete-event", w.Deactivate); err != nil {
+		return err
+	}
+	if _, err = w.dismissBtn.Connect("clicked", w.Destroy); err != nil {
+		return err
+	}
 
 	return &w, nil
 }
@@ -188,10 +201,10 @@ func (w *alertWindow) setText(text string) {
 	w.label.SetMarkup(fmt.Sprintf(`<span size='36000'>%s</span>`, text))
 }
 
-func (w *alertWindow) setTimeout(d time.Duration) {
+func (w *alertWindow) setTimeout(d time.Duration) error {
 	expiryTime := w.timestamp.Add(d)
 
-	glib.TimeoutAdd(33, func() bool {
+	return glib.TimeoutAdd(33, func() bool {
 		if w.inactive {
 			return false
 		}
@@ -210,8 +223,8 @@ func (w *alertWindow) setTimeout(d time.Duration) {
 	})
 }
 
-func (w *alertWindow) pulseProgress() {
-	glib.TimeoutAdd(80, func() bool {
+func (w *alertWindow) pulseProgress() error {
+	return glib.TimeoutAdd(80, func() bool {
 		if w.inactive {
 			return false
 		}

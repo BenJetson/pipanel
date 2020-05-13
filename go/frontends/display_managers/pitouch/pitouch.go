@@ -34,8 +34,11 @@ func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
 		return err
 	}
 
-	f.WriteString(strconv.Itoa(int(e.Level)))
 	t.log.Printf("Setting RPi touchscreen brightness to %d.", e.Level)
+
+	if _, err = f.WriteString(strconv.Itoa(int(e.Level))); err != nil {
+		return err
+	}
 
 	return f.Close()
 }
