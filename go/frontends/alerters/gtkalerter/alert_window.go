@@ -129,7 +129,7 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 		return true
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Fill in the values from the Alert event.
@@ -141,18 +141,18 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Register events.
 	if _, err = w.window.Connect("destroy", w.Deactivate); err != nil {
-		return err
+		return nil, err
 	}
 	if _, err = w.window.Connect("delete-event", w.Deactivate); err != nil {
-		return err
+		return nil, err
 	}
 	if _, err = w.dismissBtn.Connect("clicked", w.Destroy); err != nil {
-		return err
+		return nil, err
 	}
 
 	return &w, nil
