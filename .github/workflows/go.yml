@@ -46,6 +46,13 @@ jobs:
     - name: Install golangci-lint
       run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.26.0
     
+    - name: Build Cache
+      uses: actions/cache@v1.1.2
+      id: build-cache
+      with:
+        path: ~/.cache/go-build
+        key: ${{ runner.os }}-buildCache-${{ github.ref }}
+
     - name: Build
       run: go build -v ./...
       working-directory: go
@@ -89,6 +96,13 @@ jobs:
 
     - name: Install ALSA Libraries
       run: sudo apt-get install libasound2-dev
+
+    - name: Build Cache
+      uses: actions/cache@v1.1.2
+      id: build-cache
+      with:
+        path: ~/.cache/go-build
+        key: ${{ runner.os }}-buildCache-${{ github.ref }}
 
     - name: Build
       run: go build -v ./...
