@@ -81,11 +81,7 @@ func (s *Server) processSoundEvent(e pipanel.SoundEvent, w http.ResponseWriter) 
 
 	err := s.frontend.PlaySound(e)
 
-	if s.handleError(err, "Failed to play sound.", w, http.StatusInternalServerError) {
-		return false
-	}
-
-	return true
+	return !s.handleError(err, "Failed to play sound.", w, http.StatusInternalServerError)
 }
 
 func (s *Server) handlePowerEvent(w http.ResponseWriter, r *http.Request) {
