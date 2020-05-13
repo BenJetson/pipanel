@@ -1,9 +1,9 @@
 package gtkttsalerter
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
-	"os"
 	"strings"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -11,8 +11,10 @@ import (
 	"github.com/BenJetson/pipanel/go/frontends/alerters/ttsalerter"
 )
 
-const noTTSPrefixKey string = "PIPANEL_NOTTS_PREFIX"
-const noTTSPrefixDefault string = "@NOTTS@"
+type Config struct {
+	TTSAlerterCfg json.RawMessage `json:"tts_alerter"`
+	GTKAlerterCfg json.RawMessage `json:"gtk_alerter"`
+}
 
 // GTKTTSAlerter handles PiPanel alert events by displaying them on-screen and
 // reading them out loud.
@@ -30,20 +32,24 @@ func New() *GTKTTSAlerter {
 	}
 }
 
-func (g *GTKTTSAlerter) Init(log *log.Logger, cfg json.RawMessage) error {
+func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	g.log = log
 
-	// Fetch NoTTS prefix from environment.
-	g.noTTSPrefix = os.Getenv(noTTSPrefixKey)
-	if len(g.noTTSPrefix) < 1 {
-		g.noTTSPrefix = noTTSPrefixDefault
-	}
+	// Load config so it can be separated.
+	d := json.NewDecoder(bytes.NewReader(rawCfg))
+	d.DisallowUnknownFields()
 
-	if err := g.GUI.Init(log, cfg); err != nil {
+	var cfg Config
+	if err := d.Decode(&cfg); err != nil {
 		return err
 	}
 
-	if err := g.TTSAlerter.Init(log, cfg); err != nil {
+	// Initialize GTKAlerter and TTSAlerter with their respective configs.
+	if err := g.GUI.Init(log, cfg.GTKAlerterCfg); err != nil {
+		return err
+	}
+
+	if err := g.TTSAlerter.Init(log, cfg.TTSAlerterCfg); err != nil {
 		return err
 	}
 
