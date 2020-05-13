@@ -14,6 +14,12 @@ import (
 type Config struct {
 	TTSAlerterCfg json.RawMessage `json:"tts_alerter"`
 	GTKAlerterCfg json.RawMessage `json:"gtk_alerter"`
+	// NoTTSPrefix may be prepended to the text of a pipanel.AlertEvent.Message
+	// to prevent the TTSAlerter from reading the message out loud.
+	//
+	// If not set, the TTSAlerter will always read the message out loud.
+	// Defaults to not set, so messages are always read out loud by default.
+	NoTTSPrefix string `json:"no_tts_prefix"`
 }
 
 // GTKTTSAlerter handles PiPanel alert events by displaying them on-screen and
@@ -22,7 +28,8 @@ type GTKTTSAlerter struct {
 	*gtkalerter.GUI
 	*ttsalerter.TTSAlerter
 	log         *log.Logger
-	noTTSPrefix string
+	cfg         Config
+	checkPrefix bool
 }
 
 func New() *GTKTTSAlerter {
@@ -39,10 +46,12 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	d := json.NewDecoder(bytes.NewReader(rawCfg))
 	d.DisallowUnknownFields()
 
-	var cfg Config
-	if err := d.Decode(&cfg); err != nil {
+	if err := d.Decode(&(g.cfg)); err != nil {
 		return err
 	}
+
+	// Enable the checkPrefix feature if a prefix is specified.
+	g.checkPrefix = len(g.cfg.NoTTSPrefix) > 0
 
 	// Initialize GTKAlerter and TTSAlerter with their respective configs.
 	if err := g.GUI.Init(log, cfg.GTKAlerterCfg); err != nil {
@@ -73,10 +82,10 @@ func (g *GTKTTSAlerter) Cleanup() error {
 func (g *GTKTTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	// If a message has the no TTS prefix, it should not be read out loud.
 	shouldReadMsg := true
-	if strings.HasPrefix(e.Message, g.noTTSPrefix) {
+	if g.checkPrefix && strings.HasPrefix(e.Message, g.cfg.NoTTSPrefix) {
 		shouldReadMsg = false
-		e.Message = e.Message[len(g.noTTSPrefix):]
-		g.log.Println("Detected No TTS flag; skipping alert read-out.")
+		e.Message = e.Message[len(g.cfg.NoTTSPrefix):]
+		g.log.Println("Detected No TTS prefix; skipping alert read-out.")
 	}
 
 	err := g.GUI.ShowAlert(e)

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"log"
-	"strings"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	htgotts "github.com/hegedustibor/htgo-tts"
@@ -17,12 +16,6 @@ const (
 
 // Config specifies options that modify TTSAlerter behavior.
 type Config struct {
-	// NoTTSPrefix may be prepended to the text of a pipanel.AlertEvent.Message
-	// to prevent TTSAlerter from reading the message out loud.
-	//
-	// If not set, TTSAlerter will always read the message out loud.
-	// Defaults to not set, so messages are always read out loud by default.
-	NoTTSPrefix string `json:"no_tts_prefix"`
 	// TempDir will be used by TTSAlerter as a cache for TTS clips.
 	//
 	// Defaults to "/tmp/pipanel-tts" if not net.
@@ -48,10 +41,9 @@ func (cfg *Config) fillDefaults() {
 // TTSAlerter is an implementation of pipanel.Alerter that reads alerts
 // out loud via text-to-speech.
 type TTSAlerter struct {
-	log         *log.Logger
-	speech      *htgotts.Speech
-	cfg         Config
-	checkPrefix bool
+	log    *log.Logger
+	speech *htgotts.Speech
+	cfg    Config
 }
 
 // New creates a TTSAlerter instance.
@@ -60,12 +52,6 @@ func New() *TTSAlerter { return &TTSAlerter{} }
 // ShowAlert will handle pipanel alert events by reading the alert message
 // out loud to the user.
 func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
-	// If prefix checking is enabled and the message has the NoTTS prefix,
-	// skip reading this message out loud.
-	if t.checkPrefix && strings.HasPrefix(e.Message, t.cfg.NoTTSPrefix) {
-		return nil
-	}
-
 	if err := t.speech.Speak(e.Message); err != nil {
 		t.log.Println("Problem detected when reading alert message: ", err)
 		return err
@@ -88,9 +74,6 @@ func (t *TTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 
 	// Replace zero values with defaults.
 	t.cfg.fillDefaults()
-
-	// Enable the checkPrefix feature if a prefix is specified.
-	t.checkPrefix = len(t.cfg.NoTTSPrefix) > 0
 
 	// Create a HTGo-TTS instance to facilitate communication with Google TTS.
 	t.speech = &htgotts.Speech{
