@@ -1,5 +1,5 @@
-github.com/BenJetson/humantime v0.0.0-20190623040347-ece88f74df61 h1:7z0A3qINN+NLMmuct6iTBKkqbh0NfEC/SqkFH5KRgl0=
-github.com/BenJetson/humantime v0.0.0-20190623040347-ece88f74df61/go.mod h1:qp6zpJhsVh3L2Q1PKiL3CdDXnhBHd4LUE0idvgEEltU=
+github.com/BenJetson/humantime v0.0.0-20200514023344-f59ec2835a87 h1:UUvEtU5s6cajK5FypRJLVKmz7bGFvP1pixwG3L3K6tI=
+github.com/BenJetson/humantime v0.0.0-20200514023344-f59ec2835a87/go.mod h1:qp6zpJhsVh3L2Q1PKiL3CdDXnhBHd4LUE0idvgEEltU=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/faiface/beep v1.0.2 h1:UB5DiRNmA4erfUYnHbgU4UB6DlBOrsdEFRtcc8sCkdQ=
@@ -14,7 +14,6 @@ github.com/gopherjs/gopherwasm v1.0.0 h1:32nge/RlujS1Im4HNCJPp0NbBOAeBXFuT1KonUu
 github.com/gopherjs/gopherwasm v1.0.0/go.mod h1:SkZ8z7CWBz5VXbhJel8TxCmAcsQqzgWGR/8nMhyhZSI=
 github.com/gotk3/gotk3 v0.0.0-20190620081259-6dcdf9e5c51e h1:KFy3swDjmbaSAE6b1iExIgsYt0OkfoLP3HjLm4ifSR8=
 github.com/gotk3/gotk3 v0.0.0-20190620081259-6dcdf9e5c51e/go.mod h1:Eew3QBwAOBTrfFFDmsDE5wZWbcagBL1NUslj1GhRveo=
-github.com/gotk3/gotk3 v0.4.0 h1:TIuhyQitGeRTxOQIV3AJlYtEWWJpC74JHwAIsxlH8MU=
 github.com/hajimehoshi/go-mp3 v0.1.1/go.mod h1:4i+c5pDNKDrxl1iu9iG90/+fhP37lio6gNhjCx9WBJw=
 github.com/hajimehoshi/oto v0.1.1/go.mod h1:hUiLWeBQnbDu4pZsAhOnGqMI1ZGibS6e2qhQdfpwz04=
 github.com/hajimehoshi/oto v0.3.1 h1:cpf/uIv4Q0oc5uf9loQn7PIehv+mZerh+0KKma6gzMk=
