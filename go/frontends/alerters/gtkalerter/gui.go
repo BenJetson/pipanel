@@ -18,6 +18,15 @@ type Config struct {
 	// FontSize is the font size that should be used for the alert text content,
 	// measured in in points.
 	FontSize int `json:"font_size"`
+	// WindowSize defines the size of the alert window.
+	WindowSize struct {
+		// Width defines the width of the alert window, in pixels.
+		Width int `json:"width"`
+		// Height defines the height of the window, in pixels.
+		Height int `json:"height"`
+	} `json:"window_size"`
+	// IconSize defines the size of the icon, in pixels.
+	IconSize int `json:"icon_size"`
 	// Defaults contains the values that will replace zero values on the
 	// incoming pipanel.AlertEvents.
 	Defaults struct {
@@ -65,6 +74,16 @@ func validateConfig(log *log.Logger, cfg *Config) error {
 	} else if cfg.Defaults.Timeout == 0 {
 		log.Println("WARNING: default timeout of zero may cause alerts " +
 			"without a timeout set to not display a window!")
+	}
+
+	if cfg.WindowSize.Width < 250 {
+		return errors.New("window cannot be less than 250 pixels wide")
+	} else if cfg.WindowSize.Height < 250 {
+		return errors.New("window cannot be less than 250 pixels high")
+	}
+
+	if cfg.IconSize < 8 {
+		return errors.New("icon size cannot be smaller than 8 pixels")
 	}
 
 	return nil
