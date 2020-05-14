@@ -58,8 +58,7 @@ jobs:
       working-directory: go
 
     - name: Run golangci-lint
-      run: golangci-lint run --color always --out-format github-actions
-      working-directory: go
+      run: golangci-lint run --color always --out-format github-actions ./go/...
 
 
   test:
