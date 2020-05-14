@@ -33,9 +33,6 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 	}
 
 	err := errors.New("bogus error that linter should find")
-	if err == nil {
-		err = nil
-	}
 
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
