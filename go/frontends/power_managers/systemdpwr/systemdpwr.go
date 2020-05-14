@@ -2,7 +2,6 @@ package systemdpwr
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os/exec"
@@ -19,6 +18,7 @@ type SystemdPowerManager struct {
 // New creates a SystemdPowerManager instance.
 func New() *SystemdPowerManager { return &SystemdPowerManager{} }
 
+// DoPowerAction handles pipanel power events.
 func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 	switch e.Action {
 	case pipanel.PowerActionShutdown:
@@ -31,8 +31,6 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 		s.log.Println("Turning off the display.")
 		return exec.Command("xset", "dpms force off").Run()
 	}
-
-	err := errors.New("bogus error that linter should find")
 
 	return fmt.Errorf("command '%s' is not a known power action", e.Action)
 }
