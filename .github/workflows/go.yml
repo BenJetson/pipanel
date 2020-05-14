@@ -58,7 +58,7 @@ jobs:
       working-directory: go
 
     - name: Run golangci-lint
-      run: golangci-lint run --color always --out-format github-actions
+      run: golangci-lint run --color always --out-format github-actions | sed -En "s/ file=/ file=go\//p"
       working-directory: go
 
 
