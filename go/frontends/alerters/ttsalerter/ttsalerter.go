@@ -53,11 +53,17 @@ func New() *TTSAlerter { return &TTSAlerter{} }
 // ShowAlert will handle pipanel alert events by reading the alert message
 // out loud to the user.
 func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
-	if err := t.speech.Speak(e.Message); err != nil {
-		t.log.Println("Problem detected when reading alert message: ", err)
-		return err
-	}
-	t.log.Printf("Alert message read out loud to user.")
+	t.log.Println("Starting to read alert message out loud to user.")
+
+	// Since the Speak method blocks while reading to the user, it will be run
+	// asynchronously. Consequentially, all ShowAlert invocations upon a
+	// TTSAlerter will always return with success. Errors are logged only.
+	go func() {
+		if err := t.speech.Speak(e.Message); err != nil {
+			t.log.Printf(`Error when reading alert message: "%v".\n`, err)
+		}
+		t.log.Printf("Reading alert message out loud has finished.")
+	}()
 
 	return nil
 }
