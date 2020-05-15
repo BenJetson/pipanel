@@ -32,7 +32,7 @@ type Config struct {
 	Defaults struct {
 		// Timeout is the default timeout value, measured in seconds.
 		// If a TimeoutRange is specified, this value MUST be within that range.
-		Timeout int `json:"timeout"`
+		Timeout time.Duration `json:"timeout"`
 		// Icon is the default icon value, which is the name of a gtk icon.
 		Icon string `json:"icon"`
 	} `json:"defaults"`
@@ -52,7 +52,8 @@ type Config struct {
 	ForbidPerpetual bool `json:"forbid_perpetual"`
 }
 
-func validateConfig(log *log.Logger, cfg *Config) error {
+// nolint: gocyclo // keeping this validation logic together makes sense
+func validateConfig(cfg *Config) error {
 	if cfg.FontSize < 1 {
 		return errors.New("font size must be set to a value greater than zero")
 	}
@@ -70,10 +71,12 @@ func validateConfig(log *log.Logger, cfg *Config) error {
 	}
 
 	if cfg.Defaults.Timeout < 1 {
-		return errors.New("default timeout cannot be less than zero")
-	} else if cfg.Defaults.Timeout == 0 {
-		log.Println("WARNING: default timeout of zero may cause alerts " +
-			"without a timeout set to not display a window!")
+		return errors.New("default timeout cannot be less than one")
+	}
+
+	if (cfg.TimeoutRange.Min != 0 && cfg.Defaults.Timeout < cfg.TimeoutRange.Min) ||
+		(cfg.TimeoutRange.Max != 0 && cfg.Defaults.Timeout <= cfg.TimeoutRange.Max) {
+		return errors.New("default timeout must fall within TimeoutRange")
 	}
 
 	if cfg.WindowSize.Width < 250 {
@@ -100,10 +103,30 @@ type GUI struct {
 // New creates a fresh GUI instance.
 func New() *GUI { return &GUI{} }
 
+func sanitizeAlert(cfg *Config, e *pipanel.AlertEvent) {
+	if cfg.ForbidPerpetual {
+		e.Perpetual = false
+	}
+
+	if e.Timeout == 0 {
+		e.Timeout = cfg.Defaults.Timeout
+	} else if cfg.TimeoutRange.Min != 0 && e.Timeout < cfg.TimeoutRange.Min {
+		e.Timeout = cfg.TimeoutRange.Min
+	} else if cfg.TimeoutRange.Max != 0 && e.Timeout > cfg.TimeoutRange.Max {
+		e.Timeout = cfg.TimeoutRange.Max
+	}
+
+	if len(e.Icon) < 1 {
+		e.Icon = cfg.Defaults.Icon
+	}
+}
+
 // ShowAlert handles alert events by displaying a window to alert the user.
 func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
+	sanitizeAlert(&g.cfg, &e)
+
 	_, err := glib.IdleAdd(func() {
-		w, err := newAlertWindow(e, g.removeInactiveWindows)
+		w, err := newAlertWindow(&g.cfg, e, g.removeInactiveWindows)
 
 		if err != nil {
 			panic(err)
@@ -131,7 +154,7 @@ func (g *GUI) Init(log *log.Logger, rawCfg json.RawMessage) error {
 		return err
 	}
 
-	if err := validateConfig(log, &g.cfg); err != nil {
+	if err := validateConfig(&g.cfg); err != nil {
 		return err
 	}
 
