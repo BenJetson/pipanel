@@ -7,7 +7,7 @@ type AlertEvent struct {
 	SoundEvent
 	// Message is the text content of an alert.
 	Message string `json:"message"`
-	// Timeout is the number of seconds until an alert will auto-dismiss.
+	// Timeout is the number of milliseconds until an alert will auto-dismiss.
 	// This field is ignored when Perpetual == true.
 	Timeout time.Duration `json:"timeout"`
 	// Perpetual is true when the alert should not automatically dismiss.
@@ -15,9 +15,6 @@ type AlertEvent struct {
 	// Icon is the name of a gtk icon that should be displayed on-screen.
 	// If this is blank, a default icon is used.
 	Icon string `json:"icon"`
-	// // FontSize is the font size that should be used for the alert text content,
-	// // measured in in points.
-	// FontSize int `json:"font_size"`
 }
 
 // A SoundEvent contains information about a tone that will be played on the panel.

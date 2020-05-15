@@ -30,7 +30,7 @@ type alertWindow struct {
 // newAlertWindow creates a new alert window instance. Since Glade is not used
 // for layout, this function is long as it must set up each UI element manually.
 // nolint: gocyclo
-func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, error) {
+func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, error) {
 	var w alertWindow
 	var err error
 
@@ -44,7 +44,7 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 
 	w.window.SetPosition(gtk.WIN_POS_CENTER_ALWAYS)
 	w.window.SetDecorated(false)
-	w.window.SetSizeRequest(450, 300)
+	w.window.SetSizeRequest(cfg.WindowSize.Width, cfg.WindowSize.Height)
 
 	// Create the headerbar.
 	if w.headerBar, err = gtk.HeaderBarNew(); err != nil {
@@ -78,7 +78,7 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 		return nil, err
 	}
 
-	w.icon.SetPixelSize(128)
+	w.icon.SetPixelSize(cfg.IconSize)
 
 	// Create the dismiss button.
 	if w.dismissBtn, err = gtk.ButtonNewWithLabel("Acknowledge"); err != nil {
@@ -136,7 +136,7 @@ func newAlertWindow(a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, er
 	}
 
 	// Fill in the values from the Alert event.
-	w.setText(a.Message)
+	w.setText(a.Message, cfg.FontSize)
 	if !a.Perpetual {
 		err = w.setTimeout(time.Millisecond * a.Timeout)
 	} else {
@@ -200,8 +200,9 @@ func (w *alertWindow) Cleanup() {
 	w.afterCleanup()
 }
 
-func (w *alertWindow) setText(text string) {
-	w.label.SetMarkup(fmt.Sprintf(`<span size='36000'>%s</span>`, text))
+func (w *alertWindow) setText(text string, fontSize int) {
+	w.label.SetMarkup(fmt.Sprintf(`<span size='%d000'>%s</span>`,
+		fontSize, text))
 }
 
 func (w *alertWindow) setTimeout(d time.Duration) error {
