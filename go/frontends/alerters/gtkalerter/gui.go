@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/gotk3/gotk3/glib"
@@ -95,9 +96,10 @@ func validateConfig(cfg *Config) error {
 // GUI is a GTK application that is capable of responding to PiPanel alert
 // events by showing them on the screen.
 type GUI struct {
-	log     *log.Logger
-	windows []*alertWindow
-	cfg     Config
+	log        *log.Logger
+	windowsMux sync.Mutex
+	windows    []*alertWindow
+	cfg        Config
 }
 
 // New creates a fresh GUI instance.
@@ -126,6 +128,13 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 	sanitizeAlert(&g.cfg, &e)
 
 	_, err := glib.IdleAdd(func() {
+		g.log.Println("Waiting for exclusive lock on window list...")
+
+		g.windowsMux.Lock()
+		defer g.windowsMux.Unlock()
+
+		g.log.Println("Lock acquired.")
+
 		w, err := newAlertWindow(&g.cfg, e, g.removeInactiveWindows)
 
 		if err != nil {
@@ -166,6 +175,12 @@ func (g *GUI) Init(log *log.Logger, rawCfg json.RawMessage) error {
 }
 
 func (g *GUI) removeInactiveWindows() {
+	g.log.Println("Waiting for exclusive lock on window list...")
+
+	g.windowsMux.Lock()
+	defer g.windowsMux.Unlock()
+
+	g.log.Println("Lock acquired.")
 	g.log.Println("Clearing inactive windows...")
 
 	count := 0
@@ -186,12 +201,25 @@ func (g *GUI) removeInactiveWindows() {
 func (g *GUI) Cleanup() error {
 	g.log.Println("Shutting down GUI...")
 
+	g.log.Println("Waiting for exclusive lock on window list...")
+
+	g.windowsMux.Lock()
+	defer g.windowsMux.Unlock()
+
+	g.log.Println("Lock acquired.")
+	g.log.Println("Destroying all windows... ")
+
 	for _, w := range g.windows {
 		w.Destroy()
 	}
 
 	g.windows = nil
 
+	g.log.Println("All windows destroyed.")
+
+	g.log.Println("Shutting down GTK main event loop...")
 	gtk.MainQuit()
+	g.log.Println("GTK main event loop halted.")
+
 	return nil
 }
