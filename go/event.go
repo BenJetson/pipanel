@@ -7,7 +7,7 @@ type AlertEvent struct {
 	SoundEvent
 	// Message is the text content of an alert.
 	Message string `json:"message"`
-	// Timeout is the number of seconds until an alert will auto-dismiss.
+	// Timeout is the number of milliseconds until an alert will auto-dismiss.
 	// This field is ignored when Perpetual == true.
 	Timeout time.Duration `json:"timeout"`
 	// Perpetual is true when the alert should not automatically dismiss.
