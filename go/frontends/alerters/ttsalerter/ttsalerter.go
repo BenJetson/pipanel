@@ -6,6 +6,7 @@ import (
 	"log"
 
 	htgotts "github.com/hegedustibor/htgo-tts"
+	"github.com/pkg/errors"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
@@ -60,7 +61,9 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	// TTSAlerter will always return with success. Errors are logged only.
 	go func() {
 		if err := t.speech.Speak(e.Message); err != nil {
-			t.log.Printf(`Error when reading alert message: "%v".\n`, err)
+			// FIXME need a better way to do these
+			err = errors.Wrap(err, "failed to read alert message")
+			t.log.Printf(`Error when reading alert message: %v\n`, err)
 		}
 		t.log.Printf("Reading alert message out loud has finished.")
 	}()
@@ -77,8 +80,8 @@ func (t *TTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	d := json.NewDecoder(bytes.NewReader(rawCfg))
 	d.DisallowUnknownFields()
 
-	if err := d.Decode(&(t.cfg)); err != nil {
-		return err
+	if err := d.Decode(&t.cfg); err != nil {
+		return errors.Wrap(err, "malformed JSON for TTSAlerter configuration")
 	}
 
 	// Replace zero values with defaults.

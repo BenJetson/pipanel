@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gotk3/gotk3/pango"
+	"github.com/pkg/errors"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
@@ -39,7 +40,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 
 	// Create the window.
 	if w.window, err = gtk.WindowNew(gtk.WINDOW_TOPLEVEL); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk window")
 	}
 
 	w.window.SetPosition(gtk.WIN_POS_CENTER_ALWAYS)
@@ -48,7 +49,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 
 	// Create the headerbar.
 	if w.headerBar, err = gtk.HeaderBarNew(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk header bar")
 	}
 
 	w.headerBar.SetHasSubtitle(true)
@@ -57,7 +58,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 
 	// Create the progress bar.
 	if w.progress, err = gtk.ProgressBarNew(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk progress bar")
 	}
 
 	w.progress.SetFraction(1.0)
@@ -65,7 +66,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 
 	// Create the message label.
 	if w.label, err = gtk.LabelNew("Message"); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk label for message")
 	}
 
 	w.label.SetSelectable(false)
@@ -75,19 +76,19 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 
 	// Create the icon.
 	if w.icon, err = gtk.ImageNewFromIconName(a.Icon, gtk.ICON_SIZE_DIALOG); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk icon")
 	}
 
 	w.icon.SetPixelSize(cfg.IconSize)
 
 	// Create the dismiss button.
 	if w.dismissBtn, err = gtk.ButtonNewWithLabel("Acknowledge"); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk button for dismiss")
 	}
 
 	var ackIcon *gtk.Image
 	if ackIcon, err = gtk.ImageNewFromIconName("gtk-yes", gtk.ICON_SIZE_BUTTON); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk icon for dismiss button")
 	}
 
 	w.dismissBtn.SetImage(ackIcon)
@@ -95,7 +96,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 
 	// Create the layouts.
 	if w.boxLayout, err = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create gtk box layout for alert content")
 	}
 
 	w.boxLayout.SetMarginStart(15)
@@ -103,7 +104,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 	w.boxLayout.SetMarginBottom(15)
 
 	if w.topLayout, err = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create box layout for window")
 	}
 
 	w.topLayout.SetHomogeneous(false)
@@ -132,7 +133,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 		return true
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to add timer for subtitle updates")
 	}
 
 	// Fill in the values from the Alert event.
@@ -144,18 +145,18 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to add timer for progress bar updates")
 	}
 
 	// Register events.
 	if _, err = w.window.Connect("destroy", w.Deactivate); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to bind destroy signal to window deactivation")
 	}
 	if _, err = w.window.Connect("delete-event", w.Deactivate); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to bind deletion signal to window deactivation")
 	}
 	if _, err = w.dismissBtn.Connect("clicked", w.Destroy); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to bind dismiss button to window destruction")
 	}
 
 	return &w, nil
@@ -226,7 +227,7 @@ func (w *alertWindow) setTimeout(d time.Duration) error {
 		return true
 	})
 
-	return err
+	return errors.Wrap(err, "failed to add timer for updating progress bar fraction")
 }
 
 func (w *alertWindow) pulseProgress() error {
@@ -240,5 +241,5 @@ func (w *alertWindow) pulseProgress() error {
 		return true
 	})
 
-	return err
+	return errors.Wrap(err, "failed to add time for pulsing indeterminate progress bar")
 }

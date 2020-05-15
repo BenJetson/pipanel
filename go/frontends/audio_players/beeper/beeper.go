@@ -3,7 +3,6 @@ package beeper
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
+	"github.com/pkg/errors"
 )
 
 // Config is the structure for Beeper configuration.
@@ -44,7 +44,7 @@ func validateAudioFilename(fileName string) error {
 	// Exists for secutiry purposes to ensure that files outside of the library
 	// path cannot be accessed (for example "../not_in_library.wav" is bad).
 	if strings.Count(fileName, ".") > 0 {
-		return fmt.Errorf("illegal filename '%s' contains periods", fileName)
+		return errors.Errorf("illegal filename '%s' contains periods", fileName)
 	}
 
 	return nil
@@ -53,7 +53,7 @@ func validateAudioFilename(fileName string) error {
 // PlaySound handles pipanel sound events.
 func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	if err := validateAudioFilename(e.Sound); err != nil {
-		return nil
+		return errors.Wrap(err, "bad filename")
 	}
 
 	pathToFile := b.cfg.LibraryPath + e.Sound + ".wav"
@@ -61,13 +61,13 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	f, err := os.Open(pathToFile)
 
 	if err != nil {
-		return nil
+		return errors.Wrapf(err, "file not found: %s", pathToFile)
 	}
 
 	streamer, format, err := wav.Decode(f)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not decode WAV audio")
 	}
 
 	var streamToPlay beep.Streamer = streamer
@@ -77,7 +77,7 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	}
 
 	speaker.Play(streamToPlay)
-	b.log.Printf("Playing sound at '%s'", pathToFile)
+	b.log.Printf("Playing sound: %s", pathToFile)
 
 	return nil
 }
@@ -92,12 +92,12 @@ func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	d.DisallowUnknownFields()
 
 	if err := d.Decode(&(b.cfg)); err != nil {
-		return err
+		return errors.Wrap(err, "malformed JSON for Beeper configuration")
 	}
 
 	// Make sure library path is set.
 	if len(b.cfg.LibraryPath) < 1 {
-		return fmt.Errorf("must define an audio library path in config")
+		return errors.Errorf("must define an audio library path in config")
 	}
 
 	// Enforce trailing slash, which makes concatenation with filenames easier.
@@ -109,14 +109,15 @@ func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	dir, err := os.Open(b.cfg.LibraryPath)
 
 	if os.IsNotExist(err) {
-		return fmt.Errorf("no such directory: %s", b.cfg.LibraryPath)
+		return errors.Errorf("no such directory: %s", b.cfg.LibraryPath)
 	} else if err != nil {
-		return err
+		return errors.Wrap(err, "could not open audio library directory")
 	}
 
 	dir.Close()
 
-	return speaker.Init(SampleRate, SampleRate.N(time.Second/10))
+	err = speaker.Init(SampleRate, SampleRate.N(time.Second/10))
+	return errors.Wrap(err, "could not initialize speaker")
 }
 
 // Cleanup tears down this Beeper.

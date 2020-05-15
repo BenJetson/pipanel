@@ -40,7 +40,7 @@ func checkConfig(log *log.Logger, cfg *pipanel.Config) {
 	}
 
 	if _, ok := frontendRegister[cfg.Frontend.Name]; !ok {
-		log.Fatalf("No such frontend '%s' registered.", cfg.Frontend.Name)
+		log.Fatalf("No such frontend '%s' registered.\n", cfg.Frontend.Name)
 	}
 
 	log.Println("Configuration accepted.")
@@ -108,7 +108,7 @@ func main() {
 
 	err := frontend.Init(logFrontend, &cfg.Frontend)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Could not initialize frontend due to error: %v\n", err)
 	}
 
 	// Start the server.
@@ -123,12 +123,12 @@ func main() {
 
 		logMain.Println("Shutting down the server...")
 		if err = server.Shutdown(context.Background()); err != nil {
-			panic(err)
+			log.Printf("Shutting down server failed: %v", err)
 		}
 
 		logMain.Println("Clearing frontend resources...")
 		if err = frontend.Cleanup(); err != nil {
-			panic(err)
+			log.Println("Clearing frontend resources failed: %v", err)
 		}
 	}
 
