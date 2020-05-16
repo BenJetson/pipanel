@@ -123,12 +123,12 @@ func main() {
 
 		logMain.Println("Shutting down the server...")
 		if err = server.Shutdown(context.Background()); err != nil {
-			log.Printf("Shutting down server failed: %v", err)
+			log.Printf("Shutting down server failed: %v\n", err)
 		}
 
 		logMain.Println("Clearing frontend resources...")
 		if err = frontend.Cleanup(); err != nil {
-			log.Println("Clearing frontend resources failed: %v", err)
+			log.Printf("Clearing frontend resources failed: %v\n", err)
 		}
 	}
 
