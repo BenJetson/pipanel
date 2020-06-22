@@ -27,13 +27,14 @@ jobs:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}
 
-      - name: Get dependencies
+      - name: Get Go dependencies
         run: |
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
               dep ensure
           fi
+        working-directory: go
 
       - name: Install GTK Developer Kit
         run: sudo apt-get install libgtk-3-dev libcairo2-dev libglib2.0-dev
@@ -86,6 +87,7 @@ jobs:
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
               dep ensure
           fi
+        working-directory: go
 
       - name: Install GTK Developer Kit
         run: sudo apt-get install libgtk-3-dev libcairo2-dev libglib2.0-dev
