@@ -11,3 +11,6 @@ main
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Ignore go build output
+launcher

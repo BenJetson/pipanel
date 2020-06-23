@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/pkg/errors"
+
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
@@ -14,12 +16,14 @@ func parseAndDecodeBody(body io.ReadCloser, target interface{}) error {
 	bodyBytes, err := ioutil.ReadAll(body)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not read bytes from request body")
 	}
 
 	d := json.NewDecoder(bytes.NewReader(bodyBytes))
 	d.DisallowUnknownFields()
-	return d.Decode(target)
+
+	err = d.Decode(target)
+	return errors.Wrap(err, "malformed JSON in request body")
 }
 
 func (s *Server) handleError(err error, message string, w http.ResponseWriter, statusCode int) bool {

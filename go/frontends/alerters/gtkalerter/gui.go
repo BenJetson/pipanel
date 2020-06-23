@@ -3,13 +3,13 @@ package gtkalerter
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"log"
 	"sync"
 	"time"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/pkg/errors"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
@@ -138,7 +138,9 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 		w, err := newAlertWindow(&g.cfg, e, g.removeInactiveWindows)
 
 		if err != nil {
-			panic(err)
+			err = errors.Wrap(err, "failed to create alert window")
+			g.log.Printf("ERROR when creating alert window: %v", err)
+			return
 		}
 
 		g.log.Println("Displaying alert window to user.")
@@ -147,7 +149,7 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 		g.windows = append(g.windows, w)
 	})
 
-	return err
+	return errors.Wrap(err, "failed to request creating alert window at next idle")
 }
 
 // Init initializes this GUI instance, setting the logger and starting the GTK
@@ -160,11 +162,11 @@ func (g *GUI) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	d.DisallowUnknownFields()
 
 	if err := d.Decode(&g.cfg); err != nil {
-		return err
+		return errors.Wrap(err, "malformed JSON for GTKAlerter configuration")
 	}
 
 	if err := validateConfig(&g.cfg); err != nil {
-		return err
+		return errors.Wrap(err, "invalid configuration")
 	}
 
 	// Start the GTK main event loop.

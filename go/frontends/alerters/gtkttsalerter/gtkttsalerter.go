@@ -6,6 +6,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/BenJetson/pipanel/go/frontends/alerters/gtkalerter"
 	"github.com/BenJetson/pipanel/go/frontends/alerters/ttsalerter"
@@ -52,7 +54,7 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 	d.DisallowUnknownFields()
 
 	if err := d.Decode(&(g.cfg)); err != nil {
-		return err
+		return errors.Wrap(err, "malformed JSON for GTKTTSAlerter configuration")
 	}
 
 	// Enable the checkPrefix feature if a prefix is specified.
@@ -60,11 +62,11 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 
 	// Initialize GTKAlerter and TTSAlerter with their respective configs.
 	if err := g.GUI.Init(log, g.cfg.GTKAlerterCfg); err != nil {
-		return err
+		return errors.Wrap(err, "failed to initialize GTKAlerter")
 	}
 
 	if err := g.TTSAlerter.Init(log, g.cfg.TTSAlerterCfg); err != nil {
-		return err
+		return errors.Wrap(err, "failed to initialize TTSAlerter")
 	}
 
 	return nil
@@ -74,11 +76,11 @@ func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
 // the GTKAlerter and TTSAlerter.
 func (g *GTKTTSAlerter) Cleanup() error {
 	if err := g.GUI.Cleanup(); err != nil {
-		return err
+		return errors.Wrap(err, "failed to clean up GTKAlerter")
 	}
 
 	if err := g.TTSAlerter.Cleanup(); err != nil {
-		return err
+		return errors.Wrap(err, "failed to clean up TTSAlerter")
 	}
 
 	return nil
@@ -98,11 +100,12 @@ func (g *GTKTTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	err := g.GUI.ShowAlert(e)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to show alert via GTKAlerter")
 	}
 
 	if shouldReadMsg {
-		return g.TTSAlerter.ShowAlert(e)
+		err = g.TTSAlerter.ShowAlert(e)
+		return errors.Wrap(err, "failed to read alert via TTSAlerter")
 	}
 	return nil
 }
