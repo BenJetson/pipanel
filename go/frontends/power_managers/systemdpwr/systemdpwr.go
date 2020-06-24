@@ -3,16 +3,19 @@ package systemdpwr
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os/exec"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+
+	"github.com/sirupsen/logrus"
 )
+
+var _ pipanel.PowerManager = (*SystemdPowerManager)(nil)
 
 // SystemdPowerManager handles pipanel power events for systemd-based systems
 // with X display servers.
 type SystemdPowerManager struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creates a SystemdPowerManager instance.
@@ -36,7 +39,7 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 }
 
 // Init initializes this SystemdPowerManager by setting the logger.
-func (s *SystemdPowerManager) Init(log *log.Logger, _ json.RawMessage) error {
+func (s *SystemdPowerManager) Init(log *logrus.Entry, _ json.RawMessage) error {
 	s.log = log
 	return nil
 }

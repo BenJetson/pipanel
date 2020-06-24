@@ -2,21 +2,23 @@ package pitouch
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
+
+var _ pipanel.DisplayManager = (*TouchDisplayManager)(nil)
 
 const brightFile string = "/sys/class/backlight/rpi_backlight/brightness"
 
 // TouchDisplayManager implements pipanel.DisplayManager for the Raspberry Pi
 // official 7" touchscreen device.
 type TouchDisplayManager struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creates a TouchDisplayManager instance.
@@ -47,7 +49,7 @@ func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
 }
 
 // Init initializes this TouchDisplayManager.
-func (t *TouchDisplayManager) Init(log *log.Logger, _ json.RawMessage) error {
+func (t *TouchDisplayManager) Init(log *logrus.Entry, _ json.RawMessage) error {
 	// TODO might be a good idea to set a default brightness in here.
 	t.log = log
 	return nil

@@ -2,15 +2,18 @@ package alertlog
 
 import (
 	"encoding/json"
-	"log"
+
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
+var _ pipanel.Alerter = (*AlertLog)(nil)
+
 // AlertLog implements pipanel.Alerter and handles alert events by writing the
 // details to the console. Useful for testing purposes.
 type AlertLog struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creats a fresh AlertLog instance.
@@ -30,7 +33,7 @@ func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
 }
 
 // Init initializes this AlertLog by setting the logger.
-func (a *AlertLog) Init(log *log.Logger, _ json.RawMessage) error {
+func (a *AlertLog) Init(log *logrus.Entry, _ json.RawMessage) error {
 	a.log = log
 	return nil
 }

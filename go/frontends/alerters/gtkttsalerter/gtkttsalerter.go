@@ -3,15 +3,17 @@ package gtkttsalerter
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/BenJetson/pipanel/go/frontends/alerters/gtkalerter"
 	"github.com/BenJetson/pipanel/go/frontends/alerters/ttsalerter"
 )
+
+var _ pipanel.Alerter = (*GTKTTSAlerter)(nil)
 
 // Config specifies the options that modify the behavior of GTKAlerter,
 // TTSAlerter, and GTKTTSAlerter.
@@ -31,7 +33,7 @@ type Config struct {
 type GTKTTSAlerter struct {
 	*gtkalerter.GUI
 	*ttsalerter.TTSAlerter
-	log         *log.Logger
+	log         *logrus.Entry
 	cfg         Config
 	checkPrefix bool
 }
@@ -46,7 +48,7 @@ func New() *GTKTTSAlerter {
 
 // Init initializes this GTKTTSAlerter, parsing the configuration and
 // initializing both GTKAlerter and TTSAlerter.
-func (g *GTKTTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
+func (g *GTKTTSAlerter) Init(log *logrus.Entry, rawCfg json.RawMessage) error {
 	g.log = log
 
 	// Load config so it can be separated.

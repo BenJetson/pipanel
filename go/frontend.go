@@ -1,9 +1,8 @@
 package pipanel
 
 import (
-	"log"
-
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // Frontend provides abstraction for processing PiPanel events.
@@ -15,7 +14,7 @@ type Frontend struct {
 }
 
 // Init initializes all components of the Frontend.
-func (f *Frontend) Init(log *log.Logger, cfg *FrontendConfig) error {
+func (f *Frontend) Init(log *logrus.Entry, cfg *FrontendConfig) error {
 	if f.Alerter != nil {
 		if err := f.Alerter.Init(log, cfg.AlerterConfig); err != nil {
 			return errors.Wrap(err, "failed to initialize Alerter")

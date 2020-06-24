@@ -2,15 +2,18 @@ package audiolog
 
 import (
 	"encoding/json"
-	"log"
+
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
 
+var _ pipanel.AudioPlayer = (*AudioLog)(nil)
+
 // AudioLog implements pipanel.AudioPlayer and handles sound events by writing
 // the details to the console. Useful for testing purposes.
 type AudioLog struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creates a fresh AudioLog instance.
@@ -27,7 +30,7 @@ func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
 }
 
 // Init initailizes this AlertLog by setting the logger.
-func (a *AudioLog) Init(log *log.Logger, _ json.RawMessage) error {
+func (a *AudioLog) Init(log *logrus.Entry, _ json.RawMessage) error {
 	a.log = log
 	return nil
 }

@@ -2,15 +2,18 @@ package powerlog
 
 import (
 	"encoding/json"
-	"log"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+
+	"github.com/sirupsen/logrus"
 )
+
+var _ pipanel.PowerManager = (*PowerLog)(nil)
 
 // PowerLog implements pipanel.PowerManager and handles power events by writing
 // the details to the console. Useful for testing purposes.
 type PowerLog struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creates a fresh PowerLog instance.
@@ -27,7 +30,7 @@ func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
 }
 
 // Init initializes this PowerLog by setting the logger.
-func (p *PowerLog) Init(log *log.Logger, _ json.RawMessage) error {
+func (p *PowerLog) Init(log *logrus.Entry, _ json.RawMessage) error {
 	p.log = log
 	return nil
 }

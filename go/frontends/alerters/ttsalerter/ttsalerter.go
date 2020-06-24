@@ -3,13 +3,15 @@ package ttsalerter
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 
 	htgotts "github.com/hegedustibor/htgo-tts"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
+
+var _ pipanel.Alerter = (*TTSAlerter)(nil)
 
 const (
 	tempDirDefault  string = "/tmp/pipanel-tts/"
@@ -43,7 +45,7 @@ func (cfg *Config) fillDefaults() {
 // TTSAlerter is an implementation of pipanel.Alerter that reads alerts
 // out loud via text-to-speech.
 type TTSAlerter struct {
-	log    *log.Logger
+	log    *logrus.Entry
 	speech *htgotts.Speech
 	cfg    Config
 }
@@ -73,7 +75,7 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 
 // Init initializes this TTSAlerter, loading the configuration from the
 // provided JSON.
-func (t *TTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
+func (t *TTSAlerter) Init(log *logrus.Entry, rawCfg json.RawMessage) error {
 	t.log = log
 
 	// Decode config structure.

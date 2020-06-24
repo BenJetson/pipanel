@@ -2,15 +2,18 @@ package displaylog
 
 import (
 	"encoding/json"
-	"log"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+
+	"github.com/sirupsen/logrus"
 )
+
+var _ pipanel.DisplayManager = (*DisplayLog)(nil)
 
 // DisplayLog implements pipanel.DisplayManager and handles brightness events
 // by writing the details to the console. Useful for testing purposes.
 type DisplayLog struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creates a fresh DisplayLog instance.
@@ -28,7 +31,7 @@ func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
 }
 
 // Init initializes this DisplayLog by setting the logger.
-func (d *DisplayLog) Init(log *log.Logger, _ json.RawMessage) error {
+func (d *DisplayLog) Init(log *logrus.Entry, _ json.RawMessage) error {
 	d.log = log
 	return nil
 }

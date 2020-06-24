@@ -3,16 +3,18 @@ package gtkalerter
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
+
+var _ pipanel.Alerter = (*GUI)(nil)
 
 // Config specifies the options that modify the behavior of GTKAlerter.
 type Config struct {
@@ -96,7 +98,7 @@ func validateConfig(cfg *Config) error {
 // GUI is a GTK application that is capable of responding to PiPanel alert
 // events by showing them on the screen.
 type GUI struct {
-	log        *log.Logger
+	log        *logrus.Entry
 	windowsMux sync.Mutex
 	windows    []*alertWindow
 	cfg        Config
@@ -154,7 +156,7 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 
 // Init initializes this GUI instance, setting the logger and starting the GTK
 // main event loop in a separate goroutine.
-func (g *GUI) Init(log *log.Logger, rawCfg json.RawMessage) error {
+func (g *GUI) Init(log *logrus.Entry, rawCfg json.RawMessage) error {
 	g.log = log
 
 	// Decode the config.
