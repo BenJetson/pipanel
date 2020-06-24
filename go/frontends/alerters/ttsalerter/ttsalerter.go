@@ -63,11 +63,12 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	// TTSAlerter will always return with success. Errors are logged only.
 	go func() {
 		if err := t.speech.Speak(e.Message); err != nil {
-			// FIXME need a better way to do these
-			err = errors.Wrap(err, "failed to read alert message")
-			t.log.Printf(`Error when reading alert message: %v\n`, err)
+			err = errors.Wrap(err, "failed to read alert message out loud")
+			t.log.WithFields(logrus.Fields{
+				"error": err,
+			}).Errorln("Problem when reading alert message out loud.")
 		}
-		t.log.Printf("Reading alert message out loud has finished.")
+		t.log.Infoln("Reading alert message out loud has finished.")
 	}()
 
 	return nil

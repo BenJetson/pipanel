@@ -141,7 +141,9 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 
 		if err != nil {
 			err = errors.Wrap(err, "failed to create alert window")
-			g.log.Printf("ERROR when creating alert window: %v", err)
+			g.log.WithFields(logrus.Fields{
+				"error": err,
+			}).Errorln("Problem when creating alert window.")
 			return
 		}
 
