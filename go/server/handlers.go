@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 )
@@ -31,7 +32,11 @@ func (s *Server) handleError(err error, message string, w http.ResponseWriter, s
 		return false
 	}
 
-	s.log.Printf("ERROR: (STATUS %d) %s\n", statusCode, err)
+	s.log.WithFields(logrus.Fields{
+		"code":  statusCode,
+		"error": err,
+	}).Errorln("Problem when handling request.")
+
 	http.Error(w, message, statusCode)
 
 	return true
