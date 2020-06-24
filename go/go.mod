@@ -8,5 +8,6 @@ require (
 	github.com/gotk3/gotk3 v0.0.0-20190620081259-6dcdf9e5c51e
 	github.com/hegedustibor/htgo-tts v0.0.0-20190202120930-874fa9dd16ff
 	github.com/pkg/errors v0.8.1
+	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.3.0 // indirect
 )
