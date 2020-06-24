@@ -129,7 +129,9 @@ func main() {
 
 	err := frontend.Init(logFrontend, &cfg.Frontend)
 	if err != nil {
-		logMain.Fatalf("Could not initialize frontend due to error: %v\n", err)
+		logMain.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatalln("Problem when initializing frontend.")
 	}
 
 	// Start the server.
@@ -144,12 +146,16 @@ func main() {
 
 		logMain.Println("Shutting down the server...")
 		if err = server.Shutdown(context.Background()); err != nil {
-			logMain.Printf("Shutting down server failed: %v\n", err)
+			logMain.WithFields(logrus.Fields{
+				"error": err,
+			}).Errorln("Shutting down server failed.")
 		}
 
 		logMain.Println("Clearing frontend resources...")
 		if err = frontend.Cleanup(); err != nil {
-			logMain.Printf("Clearing frontend resources failed: %v\n", err)
+			logMain.WithFields(logrus.Fields{
+				"error": err,
+			}).Errorln("Clearing frontend resources failed.")
 		}
 	}
 
