@@ -21,10 +21,9 @@ func New() *PowerLog { return &PowerLog{} }
 
 // DoPowerAction handles power events by writing the details to the console.
 func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
-	p.log.Printf(
-		"## POWER EVENT ##\n"+
-			"Action: %s\n",
-		e.Action)
+	p.log.WithFields(logrus.Fields{
+		"action": e.Action,
+	}).Println("Received power action event.")
 
 	return nil
 }

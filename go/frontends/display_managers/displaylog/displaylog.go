@@ -22,10 +22,9 @@ func New() *DisplayLog { return &DisplayLog{} }
 // SetBrightness handles brightness events by writing the details to the
 // console.
 func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
-	d.log.Printf(
-		"## BRIGHTNESS EVENT ##\n"+
-			"Level: %d\n",
-		e.Level)
+	d.log.WithFields(logrus.Fields{
+		"level": e.Level,
+	}).Println("Received brightness event.")
 
 	return nil
 }

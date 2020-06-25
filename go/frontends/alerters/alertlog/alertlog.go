@@ -21,13 +21,12 @@ func New() *AlertLog { return &AlertLog{} }
 
 // ShowAlert handles alert events by writing the details to the console.
 func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
-	a.log.Printf(
-		"## ALERT EVENT ##\n"+
-			"Message: %s\n"+
-			"Timeout: %d\n"+
-			"AutoDismiss: %t\n"+
-			"Icon:%s\n",
-		e.Message, e.Timeout, e.Perpetual, e.Icon)
+	a.log.WithFields(logrus.Fields{
+		"message":   e.Message,
+		"timeout":   e.Timeout,
+		"perpetual": e.Perpetual,
+		"icon":      e.Icon,
+	}).Println("Received alert event.")
 
 	return nil
 }

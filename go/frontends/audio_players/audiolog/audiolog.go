@@ -21,10 +21,9 @@ func New() *AudioLog { return &AudioLog{} }
 
 // PlaySound handles sound events by writing the details to the console.
 func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
-	a.log.Printf(
-		"## SOUND EVENT ##\n"+
-			"Sound: %s\n",
-		e.Sound)
+	a.log.WithFields(logrus.Fields{
+		"sound": e.Sound,
+	}).Println("Received sound event.")
 
 	return nil
 }
