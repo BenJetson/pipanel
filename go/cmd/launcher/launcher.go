@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/errlog"
 	"github.com/BenJetson/pipanel/go/frontends"
 	"github.com/BenJetson/pipanel/go/server"
 )
@@ -129,9 +130,8 @@ func main() {
 
 	err := frontend.Init(logFrontend, &cfg.Frontend)
 	if err != nil {
-		logMain.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatalln("Problem when initializing frontend.")
+		errlog.WithError(logMain, err).
+			Fatalln("Problem when initializing frontend.")
 	}
 
 	// Start the server.
@@ -146,16 +146,14 @@ func main() {
 
 		logMain.Println("Shutting down the server...")
 		if err = server.Shutdown(context.Background()); err != nil {
-			logMain.WithFields(logrus.Fields{
-				"error": err,
-			}).Errorln("Shutting down server failed.")
+			errlog.WithError(logMain, err).
+				Errorln("Shutting down server failed.")
 		}
 
 		logMain.Println("Clearing frontend resources...")
 		if err = frontend.Cleanup(); err != nil {
-			logMain.WithFields(logrus.Fields{
-				"error": err,
-			}).Errorln("Clearing frontend resources failed.")
+			errlog.WithError(logMain, err).
+				Errorln("Clearing frontend resources failed.")
 		}
 	}
 

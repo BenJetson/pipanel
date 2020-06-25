@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/errlog"
 )
 
 var _ pipanel.Alerter = (*TTSAlerter)(nil)
@@ -64,9 +65,8 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	go func() {
 		if err := t.speech.Speak(e.Message); err != nil {
 			err = errors.Wrap(err, "failed to read alert message out loud")
-			t.log.WithFields(logrus.Fields{
-				"error": err,
-			}).Errorln("Problem when reading alert message out loud.")
+			errlog.WithError(t.log, err).
+				Errorln("Problem when reading alert message out loud.")
 		}
 		t.log.Infoln("Reading alert message out loud has finished.")
 	}()

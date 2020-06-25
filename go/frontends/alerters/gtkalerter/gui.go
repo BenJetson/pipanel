@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/errlog"
 )
 
 var _ pipanel.Alerter = (*GUI)(nil)
@@ -141,9 +142,8 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 
 		if err != nil {
 			err = errors.Wrap(err, "failed to create alert window")
-			g.log.WithFields(logrus.Fields{
-				"error": err,
-			}).Errorln("Problem when creating alert window.")
+			errlog.WithError(g.log, err).
+				Errorln("Problem when creating alert window.")
 			return
 		}
 

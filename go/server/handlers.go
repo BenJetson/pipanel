@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/errlog"
 )
 
 func parseAndDecodeBody(body io.ReadCloser, target interface{}) error {
@@ -32,9 +33,8 @@ func (s *Server) handleError(err error, message string, w http.ResponseWriter, s
 		return false
 	}
 
-	s.log.WithFields(logrus.Fields{
-		"code":  statusCode,
-		"error": err,
+	errlog.WithError(s.log, err).WithFields(logrus.Fields{
+		"code": statusCode,
 	}).Errorln("Problem when handling request.")
 
 	http.Error(w, message, statusCode)

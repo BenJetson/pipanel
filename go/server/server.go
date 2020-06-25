@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/errlog"
 
 	"github.com/sirupsen/logrus"
 )
@@ -57,9 +58,8 @@ func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 	err := s.httpd.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
-		s.log.WithFields(logrus.Fields{
-			"error": err,
-		}).Errorln("Server died due to a problem.")
+		errlog.WithError(s.log, err).
+			Errorln("Server died due to a problem.")
 		return
 	}
 	s.log.Println("Server has gracefully stopped.")
