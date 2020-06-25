@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -47,6 +48,9 @@ func (s *Server) handleAlertEvent(w http.ResponseWriter, r *http.Request) {
 
 	var e pipanel.AlertEvent
 	err := parseAndDecodeBody(r.Body, &e)
+
+	// AlertEvent timeout is measured in milliseconds.
+	e.Timeout *= time.Millisecond
 
 	if s.handleError(err, "JSON is invalid or violates schema.", w, http.StatusBadRequest) {
 		return

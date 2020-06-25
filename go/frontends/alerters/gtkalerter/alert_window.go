@@ -139,7 +139,7 @@ func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*al
 	// Fill in the values from the Alert event.
 	w.setText(a.Message, cfg.FontSize)
 	if !a.Perpetual {
-		err = w.setTimeout(time.Millisecond * a.Timeout)
+		err = w.setTimeout(a.Timeout)
 	} else {
 		err = w.pulseProgress()
 	}
