@@ -45,6 +45,7 @@ func New(l *logrus.Entry, port int, frontend *pipanel.Frontend) *Server {
 
 	// Register middleware.
 	mux.Use(AttachRequestIDMiddlewareBuilder())
+	mux.Use(PanicRecoverMiddlewareBuilder(l))
 
 	return &s
 }
