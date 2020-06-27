@@ -1,6 +1,7 @@
 package pipanel
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/sirupsen/logrus"
@@ -25,26 +26,26 @@ type InitCleaner interface {
 type Alerter interface {
 	InitCleaner
 	// ShowAlert displays an alert on the screen.
-	ShowAlert(e AlertEvent) error
+	ShowAlert(ctx context.Context, e AlertEvent) error
 }
 
 // An AudioPlayer plays audio clips stored on the system.
 type AudioPlayer interface {
 	InitCleaner
 	// PlaySound plays the specified sound.
-	PlaySound(e SoundEvent) error
+	PlaySound(ctx context.Context, e SoundEvent) error
 }
 
 // A PowerManager controls system power functions.
 type PowerManager interface {
 	InitCleaner
 	// DoPowerAction performs the system power action.
-	DoPowerAction(e PowerEvent) error
+	DoPowerAction(ctx context.Context, e PowerEvent) error
 }
 
 // A DisplayManager controls properties of the display.
 type DisplayManager interface {
 	InitCleaner
 	// SetBrightness alters the brightness of the panel.
-	SetBrightness(e BrightnessEvent) error
+	SetBrightness(ctx context.Context, e BrightnessEvent) error
 }
