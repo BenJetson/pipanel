@@ -11,8 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
-	"github.com/BenJetson/pipanel/go/errlog"
 	"github.com/BenJetson/pipanel/go/frontends"
+	"github.com/BenJetson/pipanel/go/logfmt"
 	"github.com/BenJetson/pipanel/go/server"
 )
 
@@ -94,19 +94,21 @@ const msgSrcLogKey = "msg-src"
 func main() {
 	// Create log instances.
 	logger := logrus.New()
-	logger.SetFormatter(&logrus.TextFormatter{
-		SortingFunc: func(keys []string) {
-			sort.Slice(keys, func(i, j int) bool {
-				// Ensure that the component key is always at the top.
-				if keys[i] == msgSrcLogKey {
-					return true
-				} else if keys[j] == msgSrcLogKey {
-					return false
-				}
+	logger.SetFormatter(&logfmt.RequestIDFormatter{
+		TextFormatter: &logrus.TextFormatter{
+			SortingFunc: func(keys []string) {
+				sort.Slice(keys, func(i, j int) bool {
+					// Ensure that the component key is always at the top.
+					if keys[i] == msgSrcLogKey {
+						return true
+					} else if keys[j] == msgSrcLogKey {
+						return false
+					}
 
-				// All keys after component are sorted alphabetically.
-				return keys[i] < keys[j]
-			})
+					// All keys after component are sorted alphabetically.
+					return keys[i] < keys[j]
+				})
+			},
 		},
 	})
 
@@ -130,7 +132,7 @@ func main() {
 
 	err := frontend.Init(logFrontend, &cfg.Frontend)
 	if err != nil {
-		errlog.WithError(logMain, err).
+		logfmt.WithError(logMain, err).
 			Fatalln("Problem when initializing frontend.")
 	}
 
@@ -146,13 +148,13 @@ func main() {
 
 		logMain.Println("Shutting down the server...")
 		if err = server.Shutdown(context.Background()); err != nil {
-			errlog.WithError(logMain, err).
+			logfmt.WithError(logMain, err).
 				Errorln("Shutting down server failed.")
 		}
 
 		logMain.Println("Clearing frontend resources...")
 		if err = frontend.Cleanup(); err != nil {
-			errlog.WithError(logMain, err).
+			logfmt.WithError(logMain, err).
 				Errorln("Clearing frontend resources failed.")
 		}
 	}
