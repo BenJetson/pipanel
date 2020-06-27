@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
-	"github.com/BenJetson/pipanel/go/errlog"
+	"github.com/BenJetson/pipanel/go/logfmt"
 )
 
 func parseAndDecodeBody(body io.ReadCloser, target interface{}) error {
@@ -34,7 +34,7 @@ func (s *Server) handleError(err error, message string, w http.ResponseWriter, s
 		return false
 	}
 
-	errlog.WithError(s.log, err).WithFields(logrus.Fields{
+	logfmt.WithError(s.log, err).WithFields(logrus.Fields{
 		"code": statusCode,
 	}).Errorln("Problem when handling request.")
 
@@ -44,7 +44,7 @@ func (s *Server) handleError(err error, message string, w http.ResponseWriter, s
 }
 
 func (s *Server) handleAlertEvent(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Handling alert event.")
+	s.log.WithContext(r.Context()).Println("Handling alert event.")
 
 	var e pipanel.AlertEvent
 	err := parseAndDecodeBody(r.Body, &e)
@@ -56,11 +56,11 @@ func (s *Server) handleAlertEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !s.processSoundEvent(e.SoundEvent, w) {
+	if !s.processSoundEvent(e.SoundEvent, r, w) {
 		return
 	}
 
-	err = s.frontend.ShowAlert(e)
+	err = s.frontend.ShowAlert(r.Context(), e)
 
 	if s.handleError(err, "Failed to present alert to user.", w, http.StatusInternalServerError) {
 		return
@@ -70,7 +70,7 @@ func (s *Server) handleAlertEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleSoundEvent(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Handling sound event.")
+	s.log.WithContext(r.Context()).Println("Handling sound event.")
 
 	var e pipanel.SoundEvent
 	err := parseAndDecodeBody(r.Body, &e)
@@ -79,26 +79,28 @@ func (s *Server) handleSoundEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !s.processSoundEvent(e, w) {
+	if !s.processSoundEvent(e, r, w) {
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) processSoundEvent(e pipanel.SoundEvent, w http.ResponseWriter) bool {
+func (s *Server) processSoundEvent(e pipanel.SoundEvent,
+	r *http.Request, w http.ResponseWriter) bool {
+
 	if len(e.Sound) < 1 {
-		s.log.Println("Ignoring empty sound event.")
+		s.log.WithContext(r.Context()).Println("Ignoring empty sound event.")
 		return true
 	}
 
-	err := s.frontend.PlaySound(e)
+	err := s.frontend.PlaySound(r.Context(), e)
 
 	return !s.handleError(err, "Failed to play sound.", w, http.StatusInternalServerError)
 }
 
 func (s *Server) handlePowerEvent(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Handling power event.")
+	s.log.WithContext(r.Context()).Println("Handling power event.")
 
 	var e pipanel.PowerEvent
 	err := parseAndDecodeBody(r.Body, &e)
@@ -107,7 +109,7 @@ func (s *Server) handlePowerEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.frontend.DoPowerAction(e)
+	err = s.frontend.DoPowerAction(r.Context(), e)
 
 	if s.handleError(err, "Failed to perform requested power action.", w, http.StatusInternalServerError) {
 		return
@@ -117,7 +119,7 @@ func (s *Server) handlePowerEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleBrightnessEvent(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Handling brightness event.")
+	s.log.WithContext(r.Context()).Println("Handling brightness event.")
 
 	var e pipanel.BrightnessEvent
 	err := parseAndDecodeBody(r.Body, &e)
@@ -126,7 +128,7 @@ func (s *Server) handleBrightnessEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.frontend.SetBrightness(e)
+	err = s.frontend.SetBrightness(r.Context(), e)
 
 	if s.handleError(err, "Failed to perform requested brightness action.", w, http.StatusInternalServerError) {
 		return
