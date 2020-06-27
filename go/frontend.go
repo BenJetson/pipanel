@@ -1,9 +1,8 @@
 package pipanel
 
 import (
-	"log"
-
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // Frontend provides abstraction for processing PiPanel events.
@@ -14,28 +13,34 @@ type Frontend struct {
 	DisplayManager
 }
 
+const componentLogKey = "component"
+
 // Init initializes all components of the Frontend.
-func (f *Frontend) Init(log *log.Logger, cfg *FrontendConfig) error {
+func (f *Frontend) Init(log *logrus.Entry, cfg *FrontendConfig) error {
+	aLog := log.WithField(componentLogKey, "Alerter")
 	if f.Alerter != nil {
-		if err := f.Alerter.Init(log, cfg.AlerterConfig); err != nil {
+		if err := f.Alerter.Init(aLog, cfg.AlerterConfig); err != nil {
 			return errors.Wrap(err, "failed to initialize Alerter")
 		}
 	}
 
+	apLog := log.WithField(componentLogKey, "AudioPlayer")
 	if f.AudioPlayer != nil {
-		if err := f.AudioPlayer.Init(log, cfg.AudioPlayerConfig); err != nil {
+		if err := f.AudioPlayer.Init(apLog, cfg.AudioPlayerConfig); err != nil {
 			return errors.Wrap(err, "failed to initialize AudioPlayer")
 		}
 	}
 
+	pmLog := log.WithField(componentLogKey, "PowerManager")
 	if f.PowerManager != nil {
-		if err := f.PowerManager.Init(log, cfg.PowerManagerConfig); err != nil {
+		if err := f.PowerManager.Init(pmLog, cfg.PowerManagerConfig); err != nil {
 			return errors.Wrap(err, "failed to initialize PowerManager")
 		}
 	}
 
+	dmLog := log.WithField(componentLogKey, "DisplayManager")
 	if f.DisplayManager != nil {
-		if err := f.DisplayManager.Init(log, cfg.DisplayManagerConfig); err != nil {
+		if err := f.DisplayManager.Init(dmLog, cfg.DisplayManagerConfig); err != nil {
 			return errors.Wrap(err, "failed initialize DisplayManager")
 		}
 	}

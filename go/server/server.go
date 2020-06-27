@@ -3,31 +3,35 @@ package server
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/logfmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Server provides a webserver that is capable of receiving and handling
 // the PiPanel events.
 type Server struct {
-	log      *log.Logger
+	log      *logrus.Entry
 	frontend *pipanel.Frontend
 	httpd    *http.Server
 }
 
 // New creates a new Server instance, binding to the given port and frontend.
-func New(l *log.Logger, port int, frontend *pipanel.Frontend) *Server {
+func New(l *logrus.Entry, port int, frontend *pipanel.Frontend) *Server {
 	// Create a multiplexer for routing requests.
-	mux := http.NewServeMux()
+	mux := NewMiddleMux()
 
 	// Create a server instance.
 	s := Server{
 		log: l,
 		httpd: &http.Server{
 			Addr:     fmt.Sprintf(":%d", port),
-			ErrorLog: l,
+			ErrorLog: log.New(l.WriterLevel(logrus.ErrorLevel), "", 0),
 			Handler:  mux,
 		},
 		frontend: frontend,
@@ -38,6 +42,10 @@ func New(l *log.Logger, port int, frontend *pipanel.Frontend) *Server {
 	mux.HandleFunc("/sound", s.handleSoundEvent)
 	mux.HandleFunc("/power", s.handlePowerEvent)
 	mux.HandleFunc("/brightness", s.handleBrightnessEvent)
+
+	// Register middleware.
+	mux.Use(AttachRequestIDMiddlewareBuilder())
+	mux.Use(PanicRecoverMiddlewareBuilder(l))
 
 	return &s
 }
@@ -54,7 +62,8 @@ func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 	err := s.httpd.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
-		s.log.Println("Server died with error:", err)
+		logfmt.WithError(s.log, err).
+			Errorln("Server died due to a problem.")
 		return
 	}
 	s.log.Println("Server has gracefully stopped.")
@@ -62,5 +71,11 @@ func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 
 // Shutdown tears down this Server and releases its resources.
 func (s *Server) Shutdown(ctx context.Context) error {
+	// Attempt to close the io.PipeWriter passed to http.ErrorLog by Init.
+	if w, ok := s.httpd.ErrorLog.Writer().(*io.PipeWriter); ok {
+		w.Close()
+	}
+
+	// Shut down the HTTP server.
 	return s.httpd.Shutdown(ctx)
 }

@@ -1,8 +1,10 @@
 package pipanel
 
 import (
+	"context"
 	"encoding/json"
-	"log"
+
+	"github.com/sirupsen/logrus"
 )
 
 // InitCleaner allows PiPanel components to perform actions prior to their first
@@ -14,7 +16,7 @@ type InitCleaner interface {
 	// The raw JSON from the configuration file for this component is provided.
 	// Implementors may decode this config object into the appropriate format
 	// for their component.
-	Init(log *log.Logger, cfg json.RawMessage) error
+	Init(log *logrus.Entry, cfg json.RawMessage) error
 	// Cleanup performs any necessary cleanup and teardown that needs to be done
 	// prior to halting a PiPanel component.
 	Cleanup() error
@@ -24,26 +26,26 @@ type InitCleaner interface {
 type Alerter interface {
 	InitCleaner
 	// ShowAlert displays an alert on the screen.
-	ShowAlert(e AlertEvent) error
+	ShowAlert(ctx context.Context, e AlertEvent) error
 }
 
 // An AudioPlayer plays audio clips stored on the system.
 type AudioPlayer interface {
 	InitCleaner
 	// PlaySound plays the specified sound.
-	PlaySound(e SoundEvent) error
+	PlaySound(ctx context.Context, e SoundEvent) error
 }
 
 // A PowerManager controls system power functions.
 type PowerManager interface {
 	InitCleaner
 	// DoPowerAction performs the system power action.
-	DoPowerAction(e PowerEvent) error
+	DoPowerAction(ctx context.Context, e PowerEvent) error
 }
 
 // A DisplayManager controls properties of the display.
 type DisplayManager interface {
 	InitCleaner
 	// SetBrightness alters the brightness of the panel.
-	SetBrightness(e BrightnessEvent) error
+	SetBrightness(ctx context.Context, e BrightnessEvent) error
 }

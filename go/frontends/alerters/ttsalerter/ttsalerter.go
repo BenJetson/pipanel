@@ -2,14 +2,18 @@ package ttsalerter
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
-	"log"
 
 	htgotts "github.com/hegedustibor/htgo-tts"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/logfmt"
 )
+
+var _ pipanel.Alerter = (*TTSAlerter)(nil)
 
 const (
 	tempDirDefault  string = "/tmp/pipanel-tts/"
@@ -43,7 +47,7 @@ func (cfg *Config) fillDefaults() {
 // TTSAlerter is an implementation of pipanel.Alerter that reads alerts
 // out loud via text-to-speech.
 type TTSAlerter struct {
-	log    *log.Logger
+	log    *logrus.Entry
 	speech *htgotts.Speech
 	cfg    Config
 }
@@ -53,19 +57,22 @@ func New() *TTSAlerter { return &TTSAlerter{} }
 
 // ShowAlert will handle pipanel alert events by reading the alert message
 // out loud to the user.
-func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
-	t.log.Println("Starting to read alert message out loud to user.")
+func (t *TTSAlerter) ShowAlert(ctx context.Context, e pipanel.AlertEvent) error {
+	t.log.WithContext(ctx).
+		Println("Starting to read alert message out loud to user.")
 
 	// Since the Speak method blocks while reading to the user, it will be run
 	// asynchronously. Consequentially, all ShowAlert invocations upon a
 	// TTSAlerter will always return with success. Errors are logged only.
 	go func() {
 		if err := t.speech.Speak(e.Message); err != nil {
-			// FIXME need a better way to do these
-			err = errors.Wrap(err, "failed to read alert message")
-			t.log.Printf(`Error when reading alert message: %v\n`, err)
+			err = errors.Wrap(err, "failed to read alert message out loud")
+			logfmt.WithError(t.log, err).WithContext(ctx).
+				Errorln("Problem when reading alert message out loud.")
 		}
-		t.log.Printf("Reading alert message out loud has finished.")
+
+		t.log.WithContext(ctx).
+			Infoln("Reading alert message out loud has finished.")
 	}()
 
 	return nil
@@ -73,7 +80,7 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 
 // Init initializes this TTSAlerter, loading the configuration from the
 // provided JSON.
-func (t *TTSAlerter) Init(log *log.Logger, rawCfg json.RawMessage) error {
+func (t *TTSAlerter) Init(log *logrus.Entry, rawCfg json.RawMessage) error {
 	t.log = log
 
 	// Decode config structure.

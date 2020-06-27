@@ -1,34 +1,40 @@
 package systemdpwr
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os/exec"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+
+	"github.com/sirupsen/logrus"
 )
+
+var _ pipanel.PowerManager = (*SystemdPowerManager)(nil)
 
 // SystemdPowerManager handles pipanel power events for systemd-based systems
 // with X display servers.
 type SystemdPowerManager struct {
-	log *log.Logger
+	log *logrus.Entry
 }
 
 // New creates a SystemdPowerManager instance.
 func New() *SystemdPowerManager { return &SystemdPowerManager{} }
 
 // DoPowerAction handles pipanel power events.
-func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
+func (s *SystemdPowerManager) DoPowerAction(ctx context.Context,
+	e pipanel.PowerEvent) error {
+
 	switch e.Action {
 	case pipanel.PowerActionShutdown:
-		s.log.Println("Shutting down the system NOW.")
+		s.log.WithContext(ctx).Println("Shutting down the system NOW.")
 		return exec.Command("sudo", "shutdown", "now").Run()
 	case pipanel.PowerActionReboot:
-		s.log.Println("Rebooting the system NOW.")
+		s.log.WithContext(ctx).Println("Rebooting the system NOW.")
 		return exec.Command("sudo", "reboot", "now").Run()
 	case pipanel.PowerActionDisplayOff:
-		s.log.Println("Turning off the display.")
+		s.log.WithContext(ctx).Println("Turning off the display.")
 		return exec.Command("xset", "dpms force off").Run()
 	}
 
@@ -36,7 +42,7 @@ func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
 }
 
 // Init initializes this SystemdPowerManager by setting the logger.
-func (s *SystemdPowerManager) Init(log *log.Logger, _ json.RawMessage) error {
+func (s *SystemdPowerManager) Init(log *logrus.Entry, _ json.RawMessage) error {
 	s.log = log
 	return nil
 }

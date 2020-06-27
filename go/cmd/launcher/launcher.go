@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"log"
 	"os"
 	"os/signal"
+	"sort"
+
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/BenJetson/pipanel/go/frontends"
+	"github.com/BenJetson/pipanel/go/logfmt"
 	"github.com/BenJetson/pipanel/go/server"
 )
 
@@ -32,7 +35,7 @@ var frontendRegister = map[string]func() *pipanel.Frontend{
 	"pipanel-gtk": frontends.NewPiPanelGTK,
 }
 
-func checkConfig(log *log.Logger, cfg *pipanel.Config) {
+func checkConfig(log *logrus.Entry, cfg *pipanel.Config) {
 	if cfg.Server.Port < 0 {
 		log.Fatalln("Port number cannot be negative.")
 	} else if cfg.Server.Port < 1024 {
@@ -46,7 +49,7 @@ func checkConfig(log *log.Logger, cfg *pipanel.Config) {
 	log.Println("Configuration accepted.")
 }
 
-func loadConfig(log *log.Logger) *pipanel.Config {
+func loadConfig(log *logrus.Entry) *pipanel.Config {
 	// Set up command line flags.
 	var port int
 	flag.IntVar(&port, serverPortFlag, serverPortDefault, serverPortDesc)
@@ -86,11 +89,32 @@ func loadConfig(log *log.Logger) *pipanel.Config {
 	return &cfg
 }
 
+const msgSrcLogKey = "msg-src"
+
 func main() {
 	// Create log instances.
-	logServer := log.New(os.Stdout, "server ", log.LstdFlags)
-	logFrontend := log.New(os.Stdout, "frontend ", log.LstdFlags)
-	logMain := log.New(os.Stdout, "main ", log.LstdFlags)
+	logger := logrus.New()
+	logger.SetFormatter(&logfmt.RequestIDFormatter{
+		TextFormatter: &logrus.TextFormatter{
+			SortingFunc: func(keys []string) {
+				sort.Slice(keys, func(i, j int) bool {
+					// Ensure that the component key is always at the top.
+					if keys[i] == msgSrcLogKey {
+						return true
+					} else if keys[j] == msgSrcLogKey {
+						return false
+					}
+
+					// All keys after component are sorted alphabetically.
+					return keys[i] < keys[j]
+				})
+			},
+		},
+	})
+
+	logServer := logger.WithFields(logrus.Fields{msgSrcLogKey: "server"})
+	logFrontend := logger.WithFields(logrus.Fields{msgSrcLogKey: "frontend"})
+	logMain := logger.WithFields(logrus.Fields{msgSrcLogKey: "main"})
 
 	// Load configuration.
 	cfg := loadConfig(logMain)
@@ -108,7 +132,8 @@ func main() {
 
 	err := frontend.Init(logFrontend, &cfg.Frontend)
 	if err != nil {
-		log.Fatalf("Could not initialize frontend due to error: %v\n", err)
+		logfmt.WithError(logMain, err).
+			Fatalln("Problem when initializing frontend.")
 	}
 
 	// Start the server.
@@ -123,12 +148,14 @@ func main() {
 
 		logMain.Println("Shutting down the server...")
 		if err = server.Shutdown(context.Background()); err != nil {
-			log.Printf("Shutting down server failed: %v\n", err)
+			logfmt.WithError(logMain, err).
+				Errorln("Shutting down server failed.")
 		}
 
 		logMain.Println("Clearing frontend resources...")
 		if err = frontend.Cleanup(); err != nil {
-			log.Printf("Clearing frontend resources failed: %v\n", err)
+			logfmt.WithError(logMain, err).
+				Errorln("Clearing frontend resources failed.")
 		}
 	}
 

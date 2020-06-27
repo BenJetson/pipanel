@@ -2,8 +2,8 @@ package beeper
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -14,7 +14,10 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
+
+var _ pipanel.AudioPlayer = (*Beeper)(nil)
 
 // Config is the structure for Beeper configuration.
 type Config struct {
@@ -32,7 +35,7 @@ var SampleRate beep.SampleRate = 16000
 // library directory specified. Sound events are expected to omit the .wav file
 // extension from the Sound field.
 type Beeper struct {
-	log *log.Logger
+	log *logrus.Entry
 	cfg Config
 }
 
@@ -51,7 +54,7 @@ func validateAudioFilename(fileName string) error {
 }
 
 // PlaySound handles pipanel sound events.
-func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
+func (b *Beeper) PlaySound(ctx context.Context, e pipanel.SoundEvent) error {
 	if err := validateAudioFilename(e.Sound); err != nil {
 		return errors.Wrap(err, "bad filename")
 	}
@@ -77,14 +80,14 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	}
 
 	speaker.Play(streamToPlay)
-	b.log.Printf("Playing sound: %s", pathToFile)
+	b.log.WithContext(ctx).Printf("Playing sound: %s", pathToFile)
 
 	return nil
 }
 
 // Init initializes this Beeper instance. Configuration will be loaded from
 // the provided JSON blob.
-func (b *Beeper) Init(log *log.Logger, rawCfg json.RawMessage) error {
+func (b *Beeper) Init(log *logrus.Entry, rawCfg json.RawMessage) error {
 	b.log = log
 
 	// Decode config structure.

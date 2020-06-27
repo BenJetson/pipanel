@@ -2,17 +2,21 @@ package gtkalerter
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
+	"github.com/BenJetson/pipanel/go/logfmt"
 )
+
+var _ pipanel.Alerter = (*GUI)(nil)
 
 // Config specifies the options that modify the behavior of GTKAlerter.
 type Config struct {
@@ -96,7 +100,7 @@ func validateConfig(cfg *Config) error {
 // GUI is a GTK application that is capable of responding to PiPanel alert
 // events by showing them on the screen.
 type GUI struct {
-	log        *log.Logger
+	log        *logrus.Entry
 	windowsMux sync.Mutex
 	windows    []*alertWindow
 	cfg        Config
@@ -124,26 +128,28 @@ func sanitizeAlert(cfg *Config, e *pipanel.AlertEvent) {
 }
 
 // ShowAlert handles alert events by displaying a window to alert the user.
-func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
+func (g *GUI) ShowAlert(ctx context.Context, e pipanel.AlertEvent) error {
 	sanitizeAlert(&g.cfg, &e)
 
 	_, err := glib.IdleAdd(func() {
-		g.log.Println("Waiting for exclusive lock on window list...")
+		g.log.WithContext(ctx).
+			Println("Waiting for exclusive lock on window list...")
 
 		g.windowsMux.Lock()
 		defer g.windowsMux.Unlock()
 
-		g.log.Println("Lock acquired.")
+		g.log.WithContext(ctx).Println("Lock acquired.")
 
-		w, err := newAlertWindow(&g.cfg, e, g.removeInactiveWindows)
+		w, err := newAlertWindow(ctx, &g.cfg, e, g.removeInactiveWindows)
 
 		if err != nil {
 			err = errors.Wrap(err, "failed to create alert window")
-			g.log.Printf("ERROR when creating alert window: %v", err)
+			logfmt.WithError(g.log, err).WithContext(ctx).
+				Errorln("Problem when creating alert window.")
 			return
 		}
 
-		g.log.Println("Displaying alert window to user.")
+		g.log.WithContext(ctx).Println("Displaying alert window to user.")
 		w.ShowAll()
 
 		g.windows = append(g.windows, w)
@@ -154,7 +160,7 @@ func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
 
 // Init initializes this GUI instance, setting the logger and starting the GTK
 // main event loop in a separate goroutine.
-func (g *GUI) Init(log *log.Logger, rawCfg json.RawMessage) error {
+func (g *GUI) Init(log *logrus.Entry, rawCfg json.RawMessage) error {
 	g.log = log
 
 	// Decode the config.
@@ -189,8 +195,10 @@ func (g *GUI) removeInactiveWindows() {
 
 	for i := len(g.windows) - 1; i > -1; i-- {
 		if g.windows[i].inactive {
-			g.windows = append(g.windows[:i], g.windows[i+1:]...)
+			g.log.WithContext(g.windows[i].ctx).
+				Println("Alert window destroyed.")
 
+			g.windows = append(g.windows[:i], g.windows[i+1:]...)
 			count++
 		}
 	}
