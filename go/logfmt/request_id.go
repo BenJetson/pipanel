@@ -1,8 +1,9 @@
 package logfmt
 
 import (
-	pipanel "github.com/BenJetson/pipanel/go"
 	"github.com/sirupsen/logrus"
+
+	pipanel "github.com/BenJetson/pipanel/go"
 )
 
 // RequestIDFormatter annotates logs with the RequestID field set by the
