@@ -1,6 +1,7 @@
 package pitouch
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"strconv"
@@ -25,7 +26,9 @@ type TouchDisplayManager struct {
 func New() *TouchDisplayManager { return &TouchDisplayManager{} }
 
 // SetBrightness handles pipanel brightness events.
-func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
+func (t *TouchDisplayManager) SetBrightness(ctx context.Context,
+	e pipanel.BrightnessEvent) error {
+
 	// Setting the brightness less than ten will cause the screen to blank.
 	if e.Level < 10 {
 		return errors.New("device does not support brigtness values < 10")
@@ -38,7 +41,8 @@ func (t *TouchDisplayManager) SetBrightness(e pipanel.BrightnessEvent) error {
 		return errors.Wrap(err, "could not open brightness register file")
 	}
 
-	t.log.Printf("Setting RPi touchscreen brightness to %d.", e.Level)
+	t.log.WithContext(ctx).
+		Printf("Setting RPi touchscreen brightness to %d.", e.Level)
 
 	if _, err = f.WriteString(strconv.Itoa(int(e.Level))); err != nil {
 		return errors.Wrap(err, "could not write to brightness register file")

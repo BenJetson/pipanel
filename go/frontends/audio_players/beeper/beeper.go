@@ -2,6 +2,7 @@ package beeper
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"strings"
@@ -53,7 +54,7 @@ func validateAudioFilename(fileName string) error {
 }
 
 // PlaySound handles pipanel sound events.
-func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
+func (b *Beeper) PlaySound(ctx context.Context, e pipanel.SoundEvent) error {
 	if err := validateAudioFilename(e.Sound); err != nil {
 		return errors.Wrap(err, "bad filename")
 	}
@@ -79,7 +80,7 @@ func (b *Beeper) PlaySound(e pipanel.SoundEvent) error {
 	}
 
 	speaker.Play(streamToPlay)
-	b.log.Printf("Playing sound: %s", pathToFile)
+	b.log.WithContext(ctx).Printf("Playing sound: %s", pathToFile)
 
 	return nil
 }

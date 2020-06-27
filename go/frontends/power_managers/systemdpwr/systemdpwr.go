@@ -1,6 +1,7 @@
 package systemdpwr
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -22,16 +23,18 @@ type SystemdPowerManager struct {
 func New() *SystemdPowerManager { return &SystemdPowerManager{} }
 
 // DoPowerAction handles pipanel power events.
-func (s *SystemdPowerManager) DoPowerAction(e pipanel.PowerEvent) error {
+func (s *SystemdPowerManager) DoPowerAction(ctx context.Context,
+	e pipanel.PowerEvent) error {
+
 	switch e.Action {
 	case pipanel.PowerActionShutdown:
-		s.log.Println("Shutting down the system NOW.")
+		s.log.WithContext(ctx).Println("Shutting down the system NOW.")
 		return exec.Command("sudo", "shutdown", "now").Run()
 	case pipanel.PowerActionReboot:
-		s.log.Println("Rebooting the system NOW.")
+		s.log.WithContext(ctx).Println("Rebooting the system NOW.")
 		return exec.Command("sudo", "reboot", "now").Run()
 	case pipanel.PowerActionDisplayOff:
-		s.log.Println("Turning off the display.")
+		s.log.WithContext(ctx).Println("Turning off the display.")
 		return exec.Command("xset", "dpms force off").Run()
 	}
 

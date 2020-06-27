@@ -1,6 +1,7 @@
 package audiolog
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/sirupsen/logrus"
@@ -20,8 +21,8 @@ type AudioLog struct {
 func New() *AudioLog { return &AudioLog{} }
 
 // PlaySound handles sound events by writing the details to the console.
-func (a *AudioLog) PlaySound(e pipanel.SoundEvent) error {
-	a.log.WithFields(logrus.Fields{
+func (a *AudioLog) PlaySound(ctx context.Context, e pipanel.SoundEvent) error {
+	a.log.WithContext(ctx).WithFields(logrus.Fields{
 		"sound": e.Sound,
 	}).Println("Received sound event.")
 

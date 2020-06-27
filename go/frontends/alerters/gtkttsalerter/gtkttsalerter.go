@@ -2,6 +2,7 @@ package gtkttsalerter
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"strings"
 
@@ -90,23 +91,24 @@ func (g *GTKTTSAlerter) Cleanup() error {
 
 // ShowAlert displays the alert on the screen using gtkalerter.GUI and
 // (provided No TTS prefix is not present) reads the message out loud.
-func (g *GTKTTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
+func (g *GTKTTSAlerter) ShowAlert(ctx context.Context, e pipanel.AlertEvent) error {
 	// If a message has the no TTS prefix, it should not be read out loud.
 	shouldReadMsg := true
 	if g.checkPrefix && strings.HasPrefix(e.Message, g.cfg.NoTTSPrefix) {
 		shouldReadMsg = false
 		e.Message = e.Message[len(g.cfg.NoTTSPrefix):]
-		g.log.Println("Detected No TTS prefix; skipping alert read-out.")
+		g.log.WithContext(ctx).
+			Println("Detected No TTS prefix; skipping alert read-out.")
 	}
 
-	err := g.GUI.ShowAlert(e)
+	err := g.GUI.ShowAlert(ctx, e)
 
 	if err != nil {
 		return errors.Wrap(err, "failed to show alert via GTKAlerter")
 	}
 
 	if shouldReadMsg {
-		err = g.TTSAlerter.ShowAlert(e)
+		err = g.TTSAlerter.ShowAlert(ctx, e)
 		return errors.Wrap(err, "failed to read alert via TTSAlerter")
 	}
 	return nil

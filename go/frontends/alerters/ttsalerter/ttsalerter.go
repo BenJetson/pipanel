@@ -2,6 +2,7 @@ package ttsalerter
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	htgotts "github.com/hegedustibor/htgo-tts"
@@ -9,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
-	"github.com/BenJetson/pipanel/go/errlog"
+	"github.com/BenJetson/pipanel/go/logfmt"
 )
 
 var _ pipanel.Alerter = (*TTSAlerter)(nil)
@@ -56,8 +57,9 @@ func New() *TTSAlerter { return &TTSAlerter{} }
 
 // ShowAlert will handle pipanel alert events by reading the alert message
 // out loud to the user.
-func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
-	t.log.Println("Starting to read alert message out loud to user.")
+func (t *TTSAlerter) ShowAlert(ctx context.Context, e pipanel.AlertEvent) error {
+	t.log.WithContext(ctx).
+		Println("Starting to read alert message out loud to user.")
 
 	// Since the Speak method blocks while reading to the user, it will be run
 	// asynchronously. Consequentially, all ShowAlert invocations upon a
@@ -65,10 +67,12 @@ func (t *TTSAlerter) ShowAlert(e pipanel.AlertEvent) error {
 	go func() {
 		if err := t.speech.Speak(e.Message); err != nil {
 			err = errors.Wrap(err, "failed to read alert message out loud")
-			errlog.WithError(t.log, err).
+			logfmt.WithError(t.log, err).WithContext(ctx).
 				Errorln("Problem when reading alert message out loud.")
 		}
-		t.log.Infoln("Reading alert message out loud has finished.")
+
+		t.log.WithContext(ctx).
+			Infoln("Reading alert message out loud has finished.")
 	}()
 
 	return nil

@@ -1,6 +1,7 @@
 package gtkalerter
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 )
 
 type alertWindow struct {
+	ctx          context.Context
 	window       *gtk.Window
 	headerBar    *gtk.HeaderBar
 	topLayout    *gtk.Box
@@ -31,10 +33,13 @@ type alertWindow struct {
 // newAlertWindow creates a new alert window instance. Since Glade is not used
 // for layout, this function is long as it must set up each UI element manually.
 // nolint: gocyclo
-func newAlertWindow(cfg *Config, a pipanel.AlertEvent, afterCleanup func()) (*alertWindow, error) {
+func newAlertWindow(ctx context.Context, cfg *Config, a pipanel.AlertEvent,
+	afterCleanup func()) (*alertWindow, error) {
+
 	var w alertWindow
 	var err error
 
+	w.ctx = ctx
 	w.timestamp = time.Now()
 	w.afterCleanup = afterCleanup
 

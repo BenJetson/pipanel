@@ -1,6 +1,7 @@
 package powerlog
 
 import (
+	"context"
 	"encoding/json"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -20,8 +21,8 @@ type PowerLog struct {
 func New() *PowerLog { return &PowerLog{} }
 
 // DoPowerAction handles power events by writing the details to the console.
-func (p *PowerLog) DoPowerAction(e pipanel.PowerEvent) error {
-	p.log.WithFields(logrus.Fields{
+func (p *PowerLog) DoPowerAction(ctx context.Context, e pipanel.PowerEvent) error {
+	p.log.WithContext(ctx).WithFields(logrus.Fields{
 		"action": e.Action,
 	}).Println("Received power action event.")
 

@@ -1,6 +1,7 @@
 package alertlog
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/sirupsen/logrus"
@@ -20,8 +21,8 @@ type AlertLog struct {
 func New() *AlertLog { return &AlertLog{} }
 
 // ShowAlert handles alert events by writing the details to the console.
-func (a *AlertLog) ShowAlert(e pipanel.AlertEvent) error {
-	a.log.WithFields(logrus.Fields{
+func (a *AlertLog) ShowAlert(ctx context.Context, e pipanel.AlertEvent) error {
+	a.log.WithContext(ctx).WithFields(logrus.Fields{
 		"message":   e.Message,
 		"timeout":   e.Timeout,
 		"perpetual": e.Perpetual,

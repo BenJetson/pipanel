@@ -2,6 +2,7 @@ package gtkalerter
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"sync"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	pipanel "github.com/BenJetson/pipanel/go"
-	"github.com/BenJetson/pipanel/go/errlog"
+	"github.com/BenJetson/pipanel/go/logfmt"
 )
 
 var _ pipanel.Alerter = (*GUI)(nil)
@@ -127,27 +128,28 @@ func sanitizeAlert(cfg *Config, e *pipanel.AlertEvent) {
 }
 
 // ShowAlert handles alert events by displaying a window to alert the user.
-func (g *GUI) ShowAlert(e pipanel.AlertEvent) error {
+func (g *GUI) ShowAlert(ctx context.Context, e pipanel.AlertEvent) error {
 	sanitizeAlert(&g.cfg, &e)
 
 	_, err := glib.IdleAdd(func() {
-		g.log.Println("Waiting for exclusive lock on window list...")
+		g.log.WithContext(ctx).
+			Println("Waiting for exclusive lock on window list...")
 
 		g.windowsMux.Lock()
 		defer g.windowsMux.Unlock()
 
-		g.log.Println("Lock acquired.")
+		g.log.WithContext(ctx).Println("Lock acquired.")
 
-		w, err := newAlertWindow(&g.cfg, e, g.removeInactiveWindows)
+		w, err := newAlertWindow(ctx, &g.cfg, e, g.removeInactiveWindows)
 
 		if err != nil {
 			err = errors.Wrap(err, "failed to create alert window")
-			errlog.WithError(g.log, err).
+			logfmt.WithError(g.log, err).WithContext(ctx).
 				Errorln("Problem when creating alert window.")
 			return
 		}
 
-		g.log.Println("Displaying alert window to user.")
+		g.log.WithContext(ctx).Println("Displaying alert window to user.")
 		w.ShowAll()
 
 		g.windows = append(g.windows, w)
@@ -193,8 +195,10 @@ func (g *GUI) removeInactiveWindows() {
 
 	for i := len(g.windows) - 1; i > -1; i-- {
 		if g.windows[i].inactive {
-			g.windows = append(g.windows[:i], g.windows[i+1:]...)
+			g.log.WithContext(g.windows[i].ctx).
+				Println("Alert window destroyed.")
 
+			g.windows = append(g.windows[:i], g.windows[i+1:]...)
 			count++
 		}
 	}

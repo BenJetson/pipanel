@@ -1,6 +1,7 @@
 package displaylog
 
 import (
+	"context"
 	"encoding/json"
 
 	pipanel "github.com/BenJetson/pipanel/go"
@@ -21,8 +22,10 @@ func New() *DisplayLog { return &DisplayLog{} }
 
 // SetBrightness handles brightness events by writing the details to the
 // console.
-func (d *DisplayLog) SetBrightness(e pipanel.BrightnessEvent) error {
-	d.log.WithFields(logrus.Fields{
+func (d *DisplayLog) SetBrightness(ctx context.Context,
+	e pipanel.BrightnessEvent) error {
+
+	d.log.WithContext(ctx).WithFields(logrus.Fields{
 		"level": e.Level,
 	}).Println("Received brightness event.")
 
