@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	pipanel "github.com/BenJetson/pipanel/go"
-	"github.com/BenJetson/pipanel/go/errlog"
+	"github.com/BenJetson/pipanel/go/logfmt"
 
 	"github.com/sirupsen/logrus"
 )
@@ -24,7 +24,7 @@ type Server struct {
 // New creates a new Server instance, binding to the given port and frontend.
 func New(l *logrus.Entry, port int, frontend *pipanel.Frontend) *Server {
 	// Create a multiplexer for routing requests.
-	mux := http.NewServeMux()
+	mux := NewMiddleMux()
 
 	// Create a server instance.
 	s := Server{
@@ -43,6 +43,9 @@ func New(l *logrus.Entry, port int, frontend *pipanel.Frontend) *Server {
 	mux.HandleFunc("/power", s.handlePowerEvent)
 	mux.HandleFunc("/brightness", s.handleBrightnessEvent)
 
+	// Register middleware.
+	mux.Use(AttachRequestIDMiddlewareBuilder())
+
 	return &s
 }
 
@@ -58,7 +61,7 @@ func (s *Server) ListenAndServe(closeOnReturn chan<- struct{}) {
 	err := s.httpd.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
-		errlog.WithError(s.log, err).
+		logfmt.WithError(s.log, err).
 			Errorln("Server died due to a problem.")
 		return
 	}
