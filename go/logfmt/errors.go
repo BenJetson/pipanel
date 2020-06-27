@@ -7,8 +7,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const ErrKey = "error"
-const StackKey = "stack"
+const (
+	// ErrKey is the key used for the error message field.
+	ErrKey = "error"
+	// StackKey is the key used for the error stacktrace field.
+	StackKey = "stack"
+)
 
 // WithError returns a *logrus.Entry derived from the given *logrus.Entry, with
 // added fields for the error message and (if present) stack trace.
