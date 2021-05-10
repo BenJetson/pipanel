@@ -1,0 +1,41 @@
+{
+    "alert": {
+        "enabled": true,
+        "font_size": 32,
+        "icon_size": 100
+    },
+    "sound": {
+        "enabled": true,
+        "library": {
+            "chime": "/home/pi/chime.wav",
+            "tone": "/home/pi/tone.wav",
+            "siren": "/home/pi/siren.wav"
+        }
+    },
+    "system_action": {
+        "enabled": true,
+        "commands": {
+            "reboot": "reboot now",
+            "shutdown": "shutdown now"
+        }
+    },
+    "screen": {
+        "enabled": true,
+        "min": 0,
+        "max": 255,
+    },
+    "daylight-cycle": {
+        "enabled": true,
+        "day": {
+            "timeout": 0,
+            "level": 180
+        },
+        "night": {
+            "timeout": 60,
+            "level": 55
+        }
+    },
+    "server": {
+        "port": 1035
+    }
+}

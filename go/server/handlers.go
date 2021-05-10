@@ -49,6 +49,12 @@ func (s *Server) handleAlertEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = s.frontend.PlaySound(e.SoundEvent)
+
+	if s.handleError(err, "Failed to play sound.", w, http.StatusInternalServerError) {
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 

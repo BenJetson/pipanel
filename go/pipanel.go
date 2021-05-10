@@ -2,16 +2,40 @@ package pipanel
 
 import "time"
 
-// Frontend provides abstraction for processing PiPanel events.
-type Frontend interface {
+type Alerter interface {
 	// ShowAlert displays an alert on the screen.
 	ShowAlert(e AlertEvent) error
+	// Shutdown closes all active alerts and prepares for application shutdown.
+	Shutdown() error
+}
+
+type Sounder interface {
 	// PlaySound plays the specified sound.
 	PlaySound(e SoundEvent) error
+	// Stop causes all currently playing sounds to stop immediately.
+	Stop() error
+	// Shutdown stops all currently playing sounds and prepares for shutdown.
+	Shutdown() error
+}
+
+type Commander interface {
 	// DoPowerAction performs the system power action.
-	DoPowerAction(e PowerEvent) error
+	DoSystemAction(e PowerEvent) error
+}
+
+// BrigtnessController handles changing the brightness of the display panel.
+//   Further, it should also handle brightening the screen when an alert is
+//   triggered. A counter should be kept of the number of active alerts, and
+//   when that counter reaches zero, dim the display back to the previous
+//   brightness level set.
+type BrightnessController interface {
 	// SetBrightness alters the brightness of the panel.
 	SetBrightness(e BrightnessEvent) error
+	// AlertAdd should be called upon displaying an alert to the user.
+	AlertAdd()
+	// AlertDismissed should be called when an alert is dimsmissed by the user
+	//   or when it times out.
+	AlertDismiss()
 }
 
 // An AlertEvent contains information about an alert display request.
